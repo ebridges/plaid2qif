@@ -28,8 +28,8 @@ def read_credentials(account):
 
 def main():
   version = require("transaction-downloader")[0].version
-  arguments = docopt(__doc__, version=version)
-  print(arguments)
+  args = docopt(__doc__, version=version)
+  print(args)
 
 if __name__ == '__main__':
   main()
