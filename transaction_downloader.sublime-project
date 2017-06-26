@@ -1,0 +1,16 @@
+{
+    "folders":
+    [
+        {
+           "path": ".",
+	       "folder_exclude_patterns": [
+		      "build", 
+              "dist", 
+              "transaction_downloader.egg-info"
+	       ],
+	       "file_exclude_patterns": [
+              "*.sublime-project"
+	       ]
+        }
+    ]
+}
