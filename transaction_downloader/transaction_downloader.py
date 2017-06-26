@@ -16,6 +16,7 @@ from pkg_resources import require
 
 def read_credentials(account):
   credentials = {}
+  
   with open('plaid-credentials.json') as json_data:
       credentials = json.load(json_data)
   
