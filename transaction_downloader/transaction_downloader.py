@@ -20,10 +20,13 @@ def read_credentials(account):
   with open('plaid-credentials.json') as json_data:
       credentials = json.load(json_data)
   
-  with open('cfg/%s.json'%account) as json_data:
-      credentials["account"] = {};
-      credentials["account"]["name"] = account
-      credentials["account"]["credentials"] = json.load(json_data)
+  with open('cfg/%s.json' % account) as json_data:
+      account_credentials = json.load(json_data)
+
+  credentials['account'] = {
+    'name': account, 
+    'credentials': account_credentials
+  };
 
   return credentials
 
