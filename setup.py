@@ -10,6 +10,7 @@ with open('transaction_downloader/__init__.py') as f:
   for line in f:
     if(line.startswith('VERSION')):
       __version__ = line.strip().split('=')[1]
+      break
 
 
 def read(fname):
