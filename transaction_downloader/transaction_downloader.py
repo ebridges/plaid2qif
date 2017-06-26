@@ -31,5 +31,7 @@ def main():
   args = docopt(__doc__, version=version)
   print(args)
 
+  credentials = read_credentials(args['--account'])
+
 if __name__ == '__main__':
   main()
