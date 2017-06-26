@@ -1,14 +1,14 @@
 """Transaction Downloader.
 
 Usage:
-  transaction-downloader auth --public-token=<token>
+  transaction-downloader auth --account=<account-name>
   transaction-downloader -h | --help
   transaction-downloader --version
 
 Options:
-  -h --help               Show this screen.
-  --version               Show version.
-  --public-token=<token>  Public token.
+  -h --help                 Show this screen.
+  --version                 Show version.
+  --account=<account-name>  Account to work with.
 """
 from docopt import docopt
 from pkg_resources import require
