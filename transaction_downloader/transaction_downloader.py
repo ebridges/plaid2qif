@@ -11,9 +11,11 @@ Options:
   --public-token=<token>  Public token.
 """
 from docopt import docopt
+from pkg_resources import require
 
 def main():
-  arguments = docopt(__doc__, version='Transaction Downloader 1.0')
+  version = require("transaction-downloader")[0].version
+  arguments = docopt(__doc__, version=version)
   print(arguments)
 
 if __name__ == '__main__':
