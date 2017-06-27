@@ -18,12 +18,23 @@ public_token --> `transaction-downloader auth` --> access_token
 access_token (lifetime indefinite)
 """
 
+
+import os
+import plaid
 import json
 from docopt import docopt
 from pkg_resources import require
 
 
 # 'sandbox', 'development', and 'production'
+
+
+def open_client(credentials):
+  return plaid.Client(credentials['client_id'],
+                      credentials['secret'],
+                      credentials['public_key'],
+                      os.environ['PLAID_ENV'])  
+
 
 def update_credentials(account, public_token, access_token, item_id):
   with open('cfg/%s.json' % account, 'w') as outfile:
