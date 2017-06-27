@@ -22,6 +22,9 @@ import json
 from docopt import docopt
 from pkg_resources import require
 
+
+# 'sandbox', 'development', and 'production'
+
 def read_credentials(account):
   credentials = {}
   
