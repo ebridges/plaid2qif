@@ -56,7 +56,7 @@ def update_credentials(account, public_token, access_token, item_id):
       'access_token' : access_token,
       'item_id' : item_id
     }
-    json.dump(data, outfile)
+    json.dump(data, outfile, sort_keys=True, indent=2, separators=(',', ': '))
 
 
 def read_credentials(account):
