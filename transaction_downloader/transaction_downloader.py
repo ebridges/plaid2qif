@@ -10,6 +10,14 @@ Options:
   --version                 Show version.
   --account=<account-name>  Account to work with.
 """
+
+"""
+public_key --> auth.html --> public_token
+public_token (lifetime ~30m)
+public_token --> `transaction-downloader auth` --> access_token
+access_token (lifetime indefinite)
+"""
+
 import json
 from docopt import docopt
 from pkg_resources import require
