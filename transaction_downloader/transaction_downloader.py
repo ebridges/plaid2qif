@@ -29,6 +29,12 @@ from pkg_resources import require
 # 'sandbox', 'development', and 'production'
 
 
+def download(credentials, start_date, end_date):
+  client = open_client(credentials)
+  access_token = credentials['account']['credentials']['access_token']
+  response = client.Transactions.get(access_token, start_date, end_date)
+  print(response)
+
 def auth(credentials):
   client = open_client(credentials)
   public_token = credentials['account']['credentials']['public_token']
