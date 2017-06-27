@@ -30,6 +30,7 @@ def read_credentials(account):
 
   return credentials
 
+
 def main():
   version = require("transaction-downloader")[0].version
   args = docopt(__doc__, version=version)
