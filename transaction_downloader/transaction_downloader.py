@@ -25,6 +25,16 @@ from pkg_resources import require
 
 # 'sandbox', 'development', and 'production'
 
+def update_credentials(account, public_token, access_token, item_id):
+  with open('cfg/%s.json' % account, 'w') as outfile:
+    data = {
+      'public_token' : public_token,
+      'access_token' : access_token,
+      'item_id' : item_id
+    }
+    json.dump(data, outfile)
+
+
 def read_credentials(account):
   credentials = {}
   
