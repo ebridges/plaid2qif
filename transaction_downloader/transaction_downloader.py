@@ -29,6 +29,19 @@ from pkg_resources import require
 # 'sandbox', 'development', and 'production'
 
 
+def auth(credentials):
+  client = open_client(credentials)
+  public_token = credentials['account']['credentials']['public_token']
+  response = client.Item.public_token.exchange(public_token)
+
+  update_credentials(
+    credentials['account']['name'],
+    public_token,
+    response['access_token'],
+    response['item_id']
+  )
+
+
 def open_client(credentials):
   return plaid.Client(credentials['client_id'],
                       credentials['secret'],
@@ -69,6 +82,10 @@ def main():
   print(args)
 
   credentials = read_credentials(args['--account'])
+
+  if args['auth']:
+    auth(credentials)
+
 
 if __name__ == '__main__':
   main()
