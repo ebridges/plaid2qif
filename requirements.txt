@@ -1,2 +1,2 @@
 docopt
-plaid
+plaid-python
