@@ -2,6 +2,7 @@
 
 Usage:
   transaction-downloader auth --account=<account-name>
+  transaction-downloader download --account=<account-name> --from=<from-date> --to=<to-date>
   transaction-downloader -h | --help
   transaction-downloader --version
 
@@ -9,6 +10,8 @@ Options:
   -h --help                 Show this screen.
   --version                 Show version.
   --account=<account-name>  Account to work with.
+  --from=<from-date>        Beginning of date range.
+  --to=<to-date>            End of date range.
 """
 
 """
@@ -92,6 +95,8 @@ def main():
   if args['auth']:
     auth(credentials)
 
+  if args['download']:
+    download(credentials, args['--from'], args['--to'])
 
 if __name__ == '__main__':
   main()
