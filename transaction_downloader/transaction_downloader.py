@@ -27,15 +27,21 @@ import plaid
 import json
 from docopt import docopt
 from pkg_resources import require
-
+from transaction_downloader import TransactionWriter
 
 # 'sandbox', 'development', and 'production'
 
 def download(credentials, start_date, end_date, output):
   client = open_client(credentials)
   access_token = credentials['account']['credentials']['access_token']
+
   response = client.Transactions.get(access_token, start_date, end_date)
-  print(response)
+  w = TransactionWriter.TransactionWriter.instance(output)
+  w.begin()
+  for t in response['transactions']:
+    w.write_record(t)
+  w.end()
+
 
 def auth(credentials):
   client = open_client(credentials)
