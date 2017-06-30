@@ -22,7 +22,6 @@ public_token --> `transaction-downloader auth` --> access_token
 access_token (lifetime indefinite)
 """
 
-
 import os
 import plaid
 import json
