@@ -36,10 +36,23 @@ def download(credentials, start_date, end_date, output):
   access_token = credentials['account']['credentials']['access_token']
 
   response = client.Transactions.get(access_token, start_date, end_date)
+  txn_batch = len(response['transactions'])
+  txn_total = response['total_transactions']
+  txn_sofar = txn_batch
+
   w = TransactionWriter.TransactionWriter.instance(output)
   w.begin()
-  for t in response['transactions']:
-    w.write_record(t)
+
+  print("txn cnt: %d, txn total: %d" % (txn_batch, txn_total))
+  while  txn_batch > 0 and txn_batch <= txn_total:
+    for t in response['transactions']:
+      w.write_record(t)
+    response = client.Transactions.get(access_token, start_date=start_date, end_date=end_date, offset=txn_sofar )
+    txn_batch = len(response['transactions'])
+    txn_total = response['total_transactions']
+    txn_sofar = txn_batch+txn_sofar
+    print("txn cnt: %d, txn_sofar: %d, txn total: %d" % (txn_batch, txn_sofar, txn_total))
+
   w.end()
 
 
