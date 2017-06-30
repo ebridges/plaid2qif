@@ -2,7 +2,7 @@
 
 Usage:
   transaction-downloader auth --account=<account-name>
-  transaction-downloader download --account=<account-name> --from=<from-date> --to=<to-date>
+  transaction-downloader download --account=<account-name> --from=<from-date> --to=<to-date> --output=<output>
   transaction-downloader -h | --help
   transaction-downloader --version
 
@@ -12,6 +12,7 @@ Options:
   --account=<account-name>  Account to work with.
   --from=<from-date>        Beginning of date range.
   --to=<to-date>            End of date range.
+  --out=<output>            Output format either 'csv' or 'qif'. [Default: csv]
 """
 
 """
@@ -31,8 +32,7 @@ from pkg_resources import require
 
 # 'sandbox', 'development', and 'production'
 
-
-def download(credentials, start_date, end_date):
+def download(credentials, start_date, end_date, output):
   client = open_client(credentials)
   access_token = credentials['account']['credentials']['access_token']
   response = client.Transactions.get(access_token, start_date, end_date)
@@ -96,7 +96,7 @@ def main():
     auth(credentials)
 
   if args['download']:
-    download(credentials, args['--from'], args['--to'])
+    download(credentials, args['--from'], args['--to'], args['--output'])
 
 if __name__ == '__main__':
   main()
