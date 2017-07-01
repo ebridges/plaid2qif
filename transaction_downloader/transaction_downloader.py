@@ -30,7 +30,7 @@ import json
 from docopt import docopt
 from logging import *
 from pkg_resources import require
-from transaction_downloader import TransactionWriter
+from transaction_downloader import transaction_writer
 from transaction_downloader import daterange
 
 # PLAID_ENV == 'sandbox', 'development', or 'production'
@@ -46,7 +46,7 @@ def download(credentials, fromto, output):
   txn_total = response['total_transactions']
   txn_sofar = txn_batch
 
-  w = TransactionWriter.TransactionWriter.instance(output)
+  w = transaction_writer.TransactionWriter.instance(output)
   w.begin({'account-path': credentials['account']['account_path'], 
     'account-type': credentials['account']['account_type']})
 
