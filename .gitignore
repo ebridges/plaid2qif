@@ -3,3 +3,4 @@ dist/
 *.egg-info
 plaid-credentials.json
 cfg/
+*.sublime-workspace
