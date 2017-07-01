@@ -1,6 +1,6 @@
 from dateutil.parser import parse
 
-class Daterange(object):
+class DateRange(object):
   def __init__(self, start, end):
     self.start = start
     self.end = end

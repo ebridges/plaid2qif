@@ -31,7 +31,7 @@ from docopt import docopt
 from logging import *
 from pkg_resources import require
 from transaction_downloader import transaction_writer
-from transaction_downloader import daterange
+from transaction_downloader import date_range
 
 # PLAID_ENV == 'sandbox', 'development', or 'production'
 
@@ -138,7 +138,7 @@ def main():
 
   credentials = read_credentials(args['--account-type'], args['--account'])
 
-  fromto = daterange.Daterange(args['--from'], args['--to'])
+  fromto = date_range.DateRange(args['--from'], args['--to'])
 
   if args['auth']:
     auth(credentials)
