@@ -65,6 +65,7 @@ def download(credentials, fromto, output):
   w.end()
   info('completed writing %d transactions' % txn_sofar)
 
+
 def auth(credentials):
   client = open_client(credentials)
   public_token = credentials['account']['credentials']['public_token']
