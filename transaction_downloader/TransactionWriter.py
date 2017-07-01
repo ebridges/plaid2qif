@@ -36,33 +36,34 @@ class CsvTransactionWriter(TransactionWriter):
 class QifTransactionWriter(TransactionWriter):
   def begin(self, info):
     print('!Account')
-    print('N',info['account_name'])
-    print('T',info['account_type'])
-    if(info['account_description']):
-      print('D',info['account_description'])
+    print('N%s' % info['account-path'])
+    print('T%s' % info['account-type'])
+    if 'account_description' in info:
+      print('D%s' % info['account_description'])
     print('^')
-    print('!Type:',info['account_type'])
+    print('!Type:%s' % info['account-type'])
 
 
   def write_record(self, transaction):
     print('C') # cleared status: Values are blank (not cleared), "*" or "c" (cleared) and "X" or "R" (reconciled).
-    print('D', format_date(transaction['date']))
-    print('N', format_chknum(transaction))
-    print('P', transaction['name'])
-    print('T', format_amount(transaction['amount']))
+    print('D%s' % self.format_date(transaction['date']))
+    print('N%s' % self.format_chknum(transaction))
+    print('P%s' % transaction['name'])
+    print('T%s' % self.format_amount(transaction['amount']))
+    print('^')
 
 
-  def format_date(date):
+  def format_date(self, date):
     d = parse(date)
     return d.strftime('%m/%d/%Y')
 
 
-  def format_chknum(t):
+  def format_chknum(self, t):
     if(t['payment_meta']['reference_number']):
       return t['payment_meta']['reference_number']
     return 'N/A'
 
 
-  def format_amount(a):
+  def format_amount(self,a):
     d = Decimal(a).quantize(TWOPLACES)
-    return float(d)
+    return d
