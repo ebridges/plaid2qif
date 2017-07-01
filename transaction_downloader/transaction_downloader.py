@@ -49,18 +49,20 @@ def download(credentials, start_date, end_date, output):
   w.begin({'account-path': credentials['account']['account_path'], 
     'account-type': credentials['account']['account_type']})
 
-  print("txn cnt: %d, txn total: %d" % (txn_batch, txn_total))
+  debug("txn cnt: %d, txn total: %d" % (txn_batch, txn_total))
   while  txn_batch > 0 and txn_batch <= txn_total:
     for t in response['transactions']:
+      info('writing record for [%s: %s]' % (t['date'], t['name']))
+      debug('%s' % t)
       w.write_record(t)
     response = client.Transactions.get(access_token, start_date=start_date, end_date=end_date, offset=txn_sofar )
     txn_batch = len(response['transactions'])
     txn_total = response['total_transactions']
     txn_sofar = txn_batch+txn_sofar
-    print("txn cnt: %d, txn_sofar: %d, txn total: %d" % (txn_batch, txn_sofar, txn_total))
+    debug("txn cnt: %d, txn_sofar: %d, txn total: %d" % (txn_batch, txn_sofar, txn_total))
 
   w.end()
-
+  info('completed writing %d transactions' % txn_sofar)
 
 def auth(credentials):
   client = open_client(credentials)
@@ -76,6 +78,7 @@ def auth(credentials):
 
 
 def open_client(credentials):
+  debug('opening client for %s' % os.environ['PLAID_ENV'])
   return plaid.Client(credentials['client_id'],
                       credentials['secret'],
                       credentials['public_key'],
@@ -95,11 +98,14 @@ def update_credentials(account, public_token, access_token, item_id):
 def read_credentials(account_type, account_path):
   credentials = {}
   
+  info('reading credentials from plaid-credentials.json')
   with open('plaid-credentials.json') as json_data:
       credentials = json.load(json_data)
   
   account_name = account_path.split(':')[-1]
-  with open('cfg/%s.json' % account_name) as json_data:
+  account_credentials_file = 'cfg/%s.json' % account_name
+  info('reading credentials from %s' % account_credentials_file)
+  with open(account_credentials_file) as json_data:
       account_credentials = json.load(json_data)
 
   credentials['account'] = {
