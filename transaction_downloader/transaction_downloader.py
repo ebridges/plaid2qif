@@ -44,7 +44,8 @@ def download(credentials, start_date, end_date, output):
   txn_sofar = txn_batch
 
   w = TransactionWriter.TransactionWriter.instance(output)
-  w.begin()
+  w.begin({'account-path': credentials['account']['account_path'], 
+    'account-type': credentials['account']['account_type']})
 
   print("txn cnt: %d, txn total: %d" % (txn_batch, txn_total))
   while  txn_batch > 0 and txn_batch <= txn_total:
