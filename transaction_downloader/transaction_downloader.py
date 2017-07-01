@@ -32,9 +32,9 @@ from logging import *
 from pkg_resources import require
 from transaction_downloader import TransactionWriter
 
-# 'sandbox', 'development', and 'production'
+# PLAID_ENV == 'sandbox', 'development', or 'production'
 
-# 'Bank', 'CCard', 
+# account-type == 'Bank', 'CCard', etc.
 
 def download(credentials, start_date, end_date, output):
   client = open_client(credentials)
