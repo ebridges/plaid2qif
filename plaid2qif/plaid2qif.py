@@ -1,10 +1,13 @@
-"""Transaction Downloader.
+"""
+Plaid 2 QIF.
+
+Download financial transactions from Plaid and convert to QIF files.
 
 Usage:
-  transaction-downloader auth --account=<account-name> [--verbose]
-  transaction-downloader download --account=<account-name> --account-type=<type> --from=<from-date> --to=<to-date> [--output-format=<format>] [--output-dir=<path>] [--verbose]
-  transaction-downloader -h | --help
-  transaction-downloader --version
+  plaid2qif auth --account=<account-name> [--verbose]
+  plaid2qif download --account=<account-name> --account-type=<type> --from=<from-date> --to=<to-date> [--output-format=<format>] [--output-dir=<path>] [--verbose]
+  plaid2qif -h | --help
+  plaid2qif --version
 
 Options:
   -h --help                 Show this screen.
@@ -21,7 +24,7 @@ Options:
 """
 public_key --> auth.html --> public_token
 public_token (lifetime ~30m)
-public_token --> `transaction-downloader auth` --> access_token
+public_token --> `plaid2qif auth` --> access_token
 access_token (lifetime indefinite)
 """
 
@@ -32,8 +35,8 @@ import json
 from docopt import docopt
 from logging import *
 from pkg_resources import require
-from transaction_downloader import transaction_writer
-from transaction_downloader import date_range
+from plaid2qif import transaction_writer
+from plaid2qif import date_range
 
 # PLAID_ENV == 'sandbox', 'development', or 'production'
 
@@ -142,7 +145,7 @@ def configure_logging(level):
 
 
 def main():
-  version = require("transaction-downloader")[0].version
+  version = require("plaid2qif")[0].version
   args = docopt(__doc__, version=version)
   configure_logging(args['--verbose'])
   debug(args)

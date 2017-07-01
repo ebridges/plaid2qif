@@ -6,7 +6,7 @@ with open('requirements.txt') as f:
   REQUIRED = [line.rstrip('\n') for line in f]
 
 __version__ = None
-with open('transaction_downloader/__init__.py') as f:
+with open('plaid2qif/__init__.py') as f:
   for line in f:
     if(line.startswith('VERSION')):
       __version__ = line.strip().split('=')[1]
@@ -17,11 +17,11 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
-    name = "transaction-downloader",
+    name = "plaid2qif",
     version = __version__,
     author = "Edward Bridges",
     author_email = "ebridges@roja.cc",
-    description = "Download financial transactions from financial institutions as QIF files.",
+    description = "Download financial transactions from Plaid as QIF files.",
     license = "BSD",
     packages=find_packages(),
     include_package_data=True,
@@ -29,7 +29,7 @@ setup(
     install_requires=REQUIRED,
     entry_points={
        'console_scripts': [
-           'transaction-downloader = transaction_downloader.transaction_downloader:main',
+           'plaid2qif = plaid2qif.plaid2qif:main',
        ]
     },
 )
