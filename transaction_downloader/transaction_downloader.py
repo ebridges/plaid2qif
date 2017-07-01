@@ -31,16 +31,17 @@ from docopt import docopt
 from logging import *
 from pkg_resources import require
 from transaction_downloader import TransactionWriter
+from transaction_downloader import daterange
 
 # PLAID_ENV == 'sandbox', 'development', or 'production'
 
 # account-type == 'Bank', 'CCard', etc.
 
-def download(credentials, start_date, end_date, output):
+def download(credentials, fromto, output):
   client = open_client(credentials)
   access_token = credentials['account']['credentials']['access_token']
 
-  response = client.Transactions.get(access_token, start_date, end_date)
+  response = client.Transactions.get(access_token, fromto.start, fromto.end)
   txn_batch = len(response['transactions'])
   txn_total = response['total_transactions']
   txn_sofar = txn_batch
@@ -55,7 +56,7 @@ def download(credentials, start_date, end_date, output):
       info('writing record for [%s: %s]' % (t['date'], t['name']))
       debug('%s' % t)
       w.write_record(t)
-    response = client.Transactions.get(access_token, start_date=start_date, end_date=end_date, offset=txn_sofar )
+    response = client.Transactions.get(access_token, start_date=fromto.start, end_date=fromto.end, offset=txn_sofar )
     txn_batch = len(response['transactions'])
     txn_total = response['total_transactions']
     txn_sofar = txn_batch+txn_sofar
@@ -137,11 +138,13 @@ def main():
 
   credentials = read_credentials(args['--account-type'], args['--account'])
 
+  fromto = daterange.Daterange(args['--from'], args['--to'])
+
   if args['auth']:
     auth(credentials)
 
   if args['download']:
-    download(credentials, args['--from'], args['--to'], args['--output'])
+    download(credentials, fromto, args['--output'])
 
 if __name__ == '__main__':
   main()
