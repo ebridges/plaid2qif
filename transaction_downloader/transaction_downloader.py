@@ -2,7 +2,7 @@
 
 Usage:
   transaction-downloader auth --account=<account-name> [--verbose]
-  transaction-downloader download --account=<account-name> --account-type=<type> --from=<from-date> --to=<to-date> --output=<output> [--verbose]
+  transaction-downloader download --account=<account-name> --account-type=<type> --from=<from-date> --to=<to-date> --output-format=<format> [--verbose]
   transaction-downloader -h | --help
   transaction-downloader --version
 
@@ -13,7 +13,7 @@ Options:
   --account-type=<type>     Account type [Default: Bank]
   --from=<from-date>        Beginning of date range.
   --to=<to-date>            End of date range.
-  --out=<output>            Output format either 'csv' or 'qif'. [Default: csv]
+  --output-format=<format>  Output format either 'csv' or 'qif'. [Default: qif]
   --verbose                 Verbose logging output.
 """
 
@@ -145,7 +145,7 @@ def main():
     auth(credentials)
 
   if args['download']:
-    download(credentials, fromto, args['--output'])
+    download(credentials, fromto, args['--output-format'])
 
 if __name__ == '__main__':
   main()
