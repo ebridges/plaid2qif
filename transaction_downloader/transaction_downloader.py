@@ -1,8 +1,8 @@
 """Transaction Downloader.
 
 Usage:
-  transaction-downloader auth --account=<account-name>
-  transaction-downloader download --account=<account-name> --account-type=<type> --from=<from-date> --to=<to-date> --output=<output>
+  transaction-downloader auth --account=<account-name> [--verbose]
+  transaction-downloader download --account=<account-name> --account-type=<type> --from=<from-date> --to=<to-date> --output=<output> [--verbose]
   transaction-downloader -h | --help
   transaction-downloader --version
 
@@ -14,6 +14,7 @@ Options:
   --from=<from-date>        Beginning of date range.
   --to=<to-date>            End of date range.
   --out=<output>            Output format either 'csv' or 'qif'. [Default: csv]
+  --verbose                 Verbose logging output.
 """
 
 """
@@ -27,6 +28,7 @@ import os
 import plaid
 import json
 from docopt import docopt
+from logging import *
 from pkg_resources import require
 from transaction_downloader import TransactionWriter
 
@@ -110,10 +112,22 @@ def read_credentials(account_type, account_path):
   return credentials
 
 
+def configure_logging(level):
+    if not level:
+        level = INFO
+    else:
+        level = DEBUG
+    basicConfig(
+        format='[%(asctime)s][%(levelname)s] %(message)s',
+        datefmt='%Y/%m/%d %H:%M:%S',
+        level=level)
+
+
 def main():
   version = require("transaction-downloader")[0].version
   args = docopt(__doc__, version=version)
-  print(args)
+  configure_logging(args['--verbose'])
+  debug(args)
 
   credentials = read_credentials(args['--account-type'], args['--account'])
 
