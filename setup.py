@@ -22,7 +22,7 @@ setup(
     author = "Edward Bridges",
     author_email = "ebridges@roja.cc",
     description = "Download financial transactions from Plaid as QIF files.",
-    license = "BSD",
+    license = "MIT",
     packages=find_packages(),
     include_package_data=True,
     long_description=read('README.md'),
