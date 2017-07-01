@@ -26,6 +26,7 @@ access_token (lifetime indefinite)
 """
 
 import os
+import sys
 import plaid
 import json
 from docopt import docopt
@@ -41,29 +42,37 @@ from transaction_downloader import date_range
 def download(credentials, fromto, output_format, output_dir):
   client = open_client(credentials)
   access_token = credentials['account']['credentials']['access_token']
+  account_name = credentials['account']['name']
 
   response = client.Transactions.get(access_token, fromto.start, fromto.end)
   txn_batch = len(response['transactions'])
   txn_total = response['total_transactions']
   txn_sofar = txn_batch
 
-  w = transaction_writer.TransactionWriter.instance(output)
-  w.begin({'account-path': credentials['account']['account_path'], 
-    'account-type': credentials['account']['account_type']})
 
-  debug("txn cnt: %d, txn total: %d" % (txn_batch, txn_total))
-  while  txn_batch > 0 and txn_batch <= txn_total:
-    for t in response['transactions']:
-      info('writing record for [%s: %s]' % (t['date'], t['name']))
-      debug('%s' % t)
-      w.write_record(t)
-    response = client.Transactions.get(access_token, start_date=fromto.start, end_date=fromto.end, offset=txn_sofar )
-    txn_batch = len(response['transactions'])
-    txn_total = response['total_transactions']
-    txn_sofar = txn_batch+txn_sofar
-    debug("txn cnt: %d, txn_sofar: %d, txn total: %d" % (txn_batch, txn_sofar, txn_total))
+  output_handle = output_dir and open('%s/%s' % (output_dir, fromto.as_filename(account_name, output_format)), 'w') or sys.stdout
+  try:
+    w = transaction_writer.TransactionWriter.instance(output_format, output_handle)
+    w.begin({'account-path': credentials['account']['account_path'], 
+      'account-type': credentials['account']['account_type']})
 
-  w.end()
+    debug("txn cnt: %d, txn total: %d" % (txn_batch, txn_total))
+    while  txn_batch > 0 and txn_batch <= txn_total:
+      for t in response['transactions']:
+        info('writing record for [%s: %s]' % (t['date'], t['name']))
+        debug('%s' % t)
+        w.write_record(t)
+      response = client.Transactions.get(access_token, start_date=fromto.start, end_date=fromto.end, offset=txn_sofar )
+      txn_batch = len(response['transactions'])
+      txn_total = response['total_transactions']
+      txn_sofar = txn_batch+txn_sofar
+      debug("txn cnt: %d, txn_sofar: %d, txn total: %d" % (txn_batch, txn_sofar, txn_total))
+
+    w.end()
+  finally:
+    if output_handle is not sys.stdout:
+      output_handle.close()
+
   info('completed writing %d transactions' % txn_sofar)
 
 
