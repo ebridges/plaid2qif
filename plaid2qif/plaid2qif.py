@@ -5,7 +5,7 @@ Download financial transactions from Plaid and convert to QIF files.
 
 Usage:
   plaid2qif auth --account=<account-name> [--verbose]
-  plaid2qif download --account=<account-name> --account-type=<type> --from=<from-date> --to=<to-date> [--output-format=<format>] [--output-dir=<path>] [--verbose]
+  plaid2qif download --account=<account-name> --account-type=<type> --account-id=<acct-id> --from=<from-date> --to=<to-date> [--output-format=<format>] [--output-dir=<path>] [--verbose]
   plaid2qif -h | --help
   plaid2qif --version
 
@@ -14,6 +14,7 @@ Options:
   --version                 Show version.
   --account=<account-name>  Account to work with.
   --account-type=<type>     Account type [Default: Bank]
+  --account-id=<acct-id>    Plaid's account id for this account.
   --from=<from-date>        Beginning of date range.
   --to=<to-date>            End of date range.
   --output-format=<format>  Output format either 'csv' or 'qif'. [Default: qif]
@@ -46,12 +47,13 @@ def download(credentials, fromto, output_format, output_dir):
   client = open_client(credentials)
   access_token = credentials['account']['credentials']['access_token']
   account_name = credentials['account']['name']
+  account_id = credentials['account']['id']
 
-  response = client.Transactions.get(access_token, fromto.start, fromto.end)
+  response = client.Transactions.get(access_token, fromto.start, fromto.end, account_ids=[account_id])
+
   txn_batch = len(response['transactions'])
   txn_total = response['total_transactions']
   txn_sofar = txn_batch
-
 
   output_handle = output_dir and open('%s/%s' % (output_dir, fromto.as_filename(account_name, output_format)), 'w') or sys.stdout
   try:
@@ -65,7 +67,7 @@ def download(credentials, fromto, output_format, output_dir):
         info('writing record for [%s: %s]' % (t['date'], t['name']))
         debug('%s' % t)
         w.write_record(t)
-      response = client.Transactions.get(access_token, start_date=fromto.start, end_date=fromto.end, offset=txn_sofar )
+      response = client.Transactions.get(access_token, start_date=fromto.start, end_date=fromto.end, offset=txn_sofar, account_ids=[account_id] )
       txn_batch = len(response['transactions'])
       txn_total = response['total_transactions']
       txn_sofar = txn_batch+txn_sofar
@@ -110,7 +112,7 @@ def update_credentials(account, public_token, access_token, item_id):
     json.dump(data, outfile, sort_keys=True, indent=2, separators=(',', ': '))
 
 
-def read_credentials(account_type, account_path):
+def read_credentials(account_type, account_path, account_id):
   credentials = {}
   
   info('reading credentials from plaid-credentials.json')
@@ -124,6 +126,7 @@ def read_credentials(account_type, account_path):
       account_credentials = json.load(json_data)
 
   credentials['account'] = {
+    'id': account_id,
     'name': account_name, 
     'account_path': account_path,
     'account_type': account_type,
@@ -150,7 +153,7 @@ def main():
   configure_logging(args['--verbose'])
   debug(args)
 
-  credentials = read_credentials(args['--account-type'], args['--account'])
+  credentials = read_credentials(args['--account-type'], args['--account'], args['--account-id'])
 
   fromto = date_range.DateRange(args['--from'], args['--to'])
 
