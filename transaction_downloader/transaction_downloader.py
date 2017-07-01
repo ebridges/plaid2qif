@@ -2,7 +2,7 @@
 
 Usage:
   transaction-downloader auth --account=<account-name>
-  transaction-downloader download --account=<account-name> --from=<from-date> --to=<to-date> --output=<output>
+  transaction-downloader download --account=<account-name> --account-type=<type> --from=<from-date> --to=<to-date> --output=<output>
   transaction-downloader -h | --help
   transaction-downloader --version
 
@@ -10,6 +10,7 @@ Options:
   -h --help                 Show this screen.
   --version                 Show version.
   --account=<account-name>  Account to work with.
+  --account-type=<type>     Account type [Default: Bank]
   --from=<from-date>        Beginning of date range.
   --to=<to-date>            End of date range.
   --out=<output>            Output format either 'csv' or 'qif'. [Default: csv]
@@ -30,6 +31,8 @@ from pkg_resources import require
 from transaction_downloader import TransactionWriter
 
 # 'sandbox', 'development', and 'production'
+
+# 'Bank', 'CCard', 
 
 def download(credentials, start_date, end_date, output):
   client = open_client(credentials)
@@ -86,17 +89,20 @@ def update_credentials(account, public_token, access_token, item_id):
     json.dump(data, outfile, sort_keys=True, indent=2, separators=(',', ': '))
 
 
-def read_credentials(account):
+def read_credentials(account_type, account_path):
   credentials = {}
   
   with open('plaid-credentials.json') as json_data:
       credentials = json.load(json_data)
   
-  with open('cfg/%s.json' % account) as json_data:
+  account_name = account_path.split(':')[-1]
+  with open('cfg/%s.json' % account_name) as json_data:
       account_credentials = json.load(json_data)
 
   credentials['account'] = {
-    'name': account, 
+    'name': account_name, 
+    'account_path': account_path,
+    'account_type': account_type,
     'credentials': account_credentials
   };
 
@@ -108,7 +114,7 @@ def main():
   args = docopt(__doc__, version=version)
   print(args)
 
-  credentials = read_credentials(args['--account'])
+  credentials = read_credentials(args['--account-type'], args['--account'])
 
   if args['auth']:
     auth(credentials)
