@@ -160,7 +160,7 @@ def main():
   debug(args)
 
   if args['save-access-token']:
-    access_token(args['--institution'], args['--public-token'], args['--save-to'])
+    save_access_token(args['--institution'], args['--public-token'], args['--save-to'])
 
   if args['download']:
     account = {
