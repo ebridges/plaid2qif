@@ -4,15 +4,18 @@ Plaid 2 QIF.
 Download financial transactions from Plaid and convert to QIF files.
 
 Usage:
-  plaid2qif auth --account=<account-name> [--verbose]
-  plaid2qif download --account=<account-name> --account-type=<type> --account-id=<acct-id> --from=<from-date> --to=<to-date> [--output-format=<format>] [--output-dir=<path>] [--verbose]
+  plaid2qif save-access-token --institution=<name> --public-token=<token> [--cfg-dir=<dir>] [--verbose]
+  plaid2qif download --institution=<name> --account=<account-name> --account-type=<type> --account-id=<acct-id> --from=<from-date> --to=<to-date> [--output-format=<format>] [--output-dir=<path>] [--verbose]
   plaid2qif -h | --help
   plaid2qif --version
 
 Options:
   -h --help                 Show this screen.
   --version                 Show version.
-  --account=<account-name>  Account to work with.
+  --institution=<name>      Institution to get an access token from.
+  --public-token=<token>.   Transient auth token to exchange for an access token.
+  --cfg-dir=<dir>           Dir where access token is saved. [Default: ./cfg]
+  --account=<account-name>  Complete account name from accounting system that transactions will be imported to.
   --account-type=<type>     Account type [Default: Bank]
   --account-id=<acct-id>    Plaid's account id for this account.
   --from=<from-date>        Beginning of date range.
@@ -37,43 +40,57 @@ from docopt import docopt
 from logging import *
 from pkg_resources import require
 from plaid2qif import transaction_writer
-from plaid2qif import date_range
+from dateutil.parser import parse
+
+CFG_DIR='./cfg'
 
 # PLAID_ENV == 'sandbox', 'development', or 'production'
 
 # account-type == 'Bank', 'CCard', etc.
 
-def download(credentials, fromto, output_format, output_dir):
-  client = open_client(credentials)
-  access_token = credentials['account']['credentials']['access_token']
-  account_name = credentials['account']['name']
-  account_id = credentials['account']['id']
+def download(account, fromto, output):
+  client = open_client()
+  access_token = read_access_token(account['institution'])
+  account_name = account['name']
+  account_id = account['id']
 
-  response = client.Transactions.get(access_token, fromto.start, fromto.end, account_ids=[account_id])
+  response = client.Transactions.get(access_token, 
+    fromto['start'], fromto['end'], 
+    account_ids=[account_id])
 
   txn_batch = len(response['transactions'])
   txn_total = response['total_transactions']
   txn_sofar = txn_batch
 
-  output_handle = output_dir and open('%s/%s' % (output_dir, fromto.as_filename(account_name, output_format)), 'w') or sys.stdout
+  output_to_file = if output['dir'] True else False
+  output_file = '%s/%s' % (output['dir'], output_filename(account_name, fromto, output['format']))
+
+  output_handle = output_to_file and open(output_file, 'w') or sys.stdout
+  
   try:
-    w = transaction_writer.TransactionWriter.instance(output_format, output_handle)
-    w.begin({'account-path': credentials['account']['account_path'], 
-      'account-type': credentials['account']['account_type']})
+    w = transaction_writer.TransactionWriter.instance(output['format'], output_handle)
+    w.begin(account)
 
     debug("txn cnt: %d, txn total: %d" % (txn_batch, txn_total))
     while  txn_batch > 0 and txn_batch <= txn_total:
+      
       for t in response['transactions']:
         info('writing record for [%s: %s]' % (t['date'], t['name']))
         debug('%s' % t)
         w.write_record(t)
-      response = client.Transactions.get(access_token, start_date=fromto.start, end_date=fromto.end, offset=txn_sofar, account_ids=[account_id] )
+
+      response = client.Transactions.get(access_token, 
+        start_date=fromto['start'], end_date=fromto['end'], 
+        offset=txn_sofar, account_ids=[account_id] )
+
       txn_batch = len(response['transactions'])
       txn_total = response['total_transactions']
       txn_sofar = txn_batch+txn_sofar
+
       debug("txn cnt: %d, txn_sofar: %d, txn total: %d" % (txn_batch, txn_sofar, txn_total))
 
     w.end()
+
   finally:
     if output_handle is not sys.stdout:
       output_handle.close()
@@ -81,59 +98,49 @@ def download(credentials, fromto, output_format, output_dir):
   info('completed writing %d transactions' % txn_sofar)
 
 
-def auth(credentials):
-  client = open_client(credentials)
-  public_token = credentials['account']['credentials']['public_token']
+def save_access_token(institution, public_token):
+  global CFG_DIR
+  client = open_client()
   response = client.Item.public_token.exchange(public_token)
+  with open('%s/%s.json' % (CFG_DIR, institution), 'w') as outfile:
+    data = {
+      'access_token' : response['access_token'],
+      'item_id' : response['item_id']
+    }
+    json.dump(data, outfile, sort_keys=True, indent=2, separators=(',', ': '))
 
-  update_credentials(
-    credentials['account']['name'],
-    public_token,
-    response['access_token'],
-    response['item_id']
-  )
+
+def read_access_token(institution):
+  global CFG_DIR
+  with open('%s/%s.json' % (CFG_DIR, institution)) as infile:
+    cfg = json.load(infile)
+    return cfg['access_token']
 
 
-def open_client(credentials):
+def open_client():
   debug('opening client for %s' % os.environ['PLAID_ENV'])
+  credentials = {}
+  
+  info('reading credentials from plaid-credentials.json')
+  with open('plaid-credentials.json') as json_data:
+      credentials = json.load(json_data)
+
   return plaid.Client(credentials['client_id'],
                       credentials['secret'],
                       credentials['public_key'],
                       os.environ['PLAID_ENV'])  
 
 
-def update_credentials(account, public_token, access_token, item_id):
-  with open('cfg/%s.json' % account, 'w') as outfile:
-    data = {
-      'public_token' : public_token,
-      'access_token' : access_token,
-      'item_id' : item_id
-    }
-    json.dump(data, outfile, sort_keys=True, indent=2, separators=(',', ': '))
+def format_date(date):
+  d = parse(date)
+  return d.strftime('%Y-%m-%d')
 
 
-def read_credentials(account_type, account_path, account_id):
-  credentials = {}
-  
-  info('reading credentials from plaid-credentials.json')
-  with open('plaid-credentials.json') as json_data:
-      credentials = json.load(json_data)
-  
-  account_name = account_path.split(':')[-1]
-  account_credentials_file = 'cfg/%s.json' % account_name
-  info('reading credentials from %s' % account_credentials_file)
-  with open(account_credentials_file) as json_data:
-      account_credentials = json.load(json_data)
-
-  credentials['account'] = {
-    'id': account_id,
-    'name': account_name, 
-    'account_path': account_path,
-    'account_type': account_type,
-    'credentials': account_credentials
-  };
-
-  return credentials
+def output_filename(account_path, fromto, file_ext):
+  fmt_start = format_date(fromto['start'])
+  fmt_end = format_date(fromto['end'])
+  account = account_path.split(':')[-1]
+  return '%s--%s-%s.%s' % (fmt_start, fmt_end, account, file_ext)
 
 
 def configure_logging(level):
@@ -153,15 +160,25 @@ def main():
   configure_logging(args['--verbose'])
   debug(args)
 
-  credentials = read_credentials(args['--account-type'], args['--account'], args['--account-id'])
-
-  fromto = date_range.DateRange(args['--from'], args['--to'])
-
-  if args['auth']:
-    auth(credentials)
+  if args['save-access-token']:
+    access_token(args['--institution'], args['--public-token'], args['--save-to'])
 
   if args['download']:
-    download(credentials, fromto, args['--output-format'], args['--output-dir'])
+    account = {
+      'institution': args['--institution'],
+      'id' : args['--account-id'],
+      'name': args['--account'],
+      'type': args['--account-type'],
+    }
+    fromto = {
+      'start': args['--from'],
+      'end': args['--to']
+    }
+    output = {
+      'dir': args['--output-dir'],
+      'format': args['--output-format']
+    }
+    download(account, fromto, output)
 
 if __name__ == '__main__':
   main()
