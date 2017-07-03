@@ -25,13 +25,6 @@ Options:
   --verbose                 Verbose logging output.
 """
 
-"""
-public_key --> auth.html --> public_token
-public_token (lifetime ~30m)
-public_token --> `plaid2qif auth` --> access_token
-access_token (lifetime indefinite)
-"""
-
 import os
 import sys
 import plaid
@@ -45,8 +38,6 @@ from dateutil.parser import parse
 CFG_DIR='./cfg'
 
 # PLAID_ENV == 'sandbox', 'development', or 'production'
-
-# account-type == 'Bank', 'CCard', etc.
 
 def download(account, fromto, output):
   client = open_client()
