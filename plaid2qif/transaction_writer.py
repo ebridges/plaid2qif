@@ -51,6 +51,18 @@ class QifTransactionWriter(TransactionWriter):
     print('N%s' % self.format_chknum(transaction), file=self.output)
     print('P%s' % transaction['name'], file=self.output)
     print('T%s' % self.format_amount(transaction['amount']), file=self.output)
+
+    # if there's a location key for the transaction 
+    # and all of its values are non-empty, then record
+    # the address in the metadata of the QIF record
+    if 'location' in transaction and self.check_location(transaction['location']):
+      print('A%s' % transaction['location']['address'], file=self.output)
+      print('A%s, %s %s' % (transaction['location']['city'], transaction['location']['state'], transaction['location']['zip']), file=self.output)
+
+    # ditto for lon/lat
+    if 'location' in transaction and transaction['location']['lon'] and transaction['location']['lat']:
+      print('ALon:%s,Lat:%s' % (transaction['location']['lon'], transaction['location']['lat']), file=self.output)
+
     print('^', file=self.output)
 
 
@@ -68,3 +80,10 @@ class QifTransactionWriter(TransactionWriter):
   def format_amount(self,a):
     d = Decimal(a).quantize(TWOPLACES)
     return d
+
+
+  def check_location(self,loc):
+    if 'address' in loc and 'city' in loc and 'state' in loc and 'zip' in loc:
+      return True
+    else:
+      return False
