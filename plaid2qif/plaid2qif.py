@@ -34,7 +34,6 @@ from logging import *
 from pkg_resources import require
 from plaid2qif import transaction_writer
 from plaid2qif import util
-from dateutil.parser import parse
 
 CFG_DIR='./cfg'
 
