@@ -5,6 +5,7 @@ Download financial transactions from Plaid and convert to QIF files.
 
 Usage:
   plaid2qif save-access-token --institution=<name> --public-token=<token> [--verbose]
+  plaid2qif list-accounts --institution=<name> [--verbose]
   plaid2qif download --institution=<name> --account=<account-name> --account-type=<type> --account-id=<acct-id> --from=<from-date> --to=<to-date> [--output-format=<format>] [--output-dir=<path>] [--verbose]
   plaid2qif -h | --help
   plaid2qif --version
@@ -97,6 +98,16 @@ def download(account, fromto, output):
   info('completed writing %d transactions' % txn_sofar)
 
 
+def list_accounts(institution):
+  client = open_client()
+  access_token = read_access_token(institution)
+  response = client.Accounts.get(access_token)
+  accounts = response['accounts']
+
+  for a in accounts:
+    print('%s:%s\t%s\t%s\t%s' % (a['type'], a['subtype'], a['name'], a['mask'], a['account_id']))
+
+
 def save_access_token(institution, public_token):
   global CFG_DIR
   client = open_client()
@@ -161,6 +172,9 @@ def main():
 
   if args['save-access-token']:
     save_access_token(args['--institution'], args['--public-token'], args['--save-to'])
+
+  if args['list-accounts']:
+    list_accounts(args['--institution'])
 
   if args['download']:
     account = {
