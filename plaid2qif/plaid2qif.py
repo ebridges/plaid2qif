@@ -171,7 +171,7 @@ def main():
   debug(args)
 
   if args['save-access-token']:
-    save_access_token(args['--institution'], args['--public-token'], args['--save-to'])
+    save_access_token(args['--institution'], args['--public-token'])
 
   if args['list-accounts']:
     list_accounts(args['--institution'])
