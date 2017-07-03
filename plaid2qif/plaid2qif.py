@@ -33,6 +33,7 @@ from docopt import docopt
 from logging import *
 from pkg_resources import require
 from plaid2qif import transaction_writer
+from plaid2qif import util
 from dateutil.parser import parse
 
 CFG_DIR='./cfg'
@@ -54,7 +55,7 @@ def download(account, fromto, output):
   txn_sofar = txn_batch
 
   output_to_file = True if output['dir'] else False
-  output_file = '%s/%s' % (output['dir'], output_filename(account_name, fromto, output['format']))
+  output_file = '%s/%s' % (output['dir'], util.output_filename(account_name, fromto, output['format']))
 
   output_handle = output_to_file and open(output_file, 'w') or sys.stdout
   
@@ -132,33 +133,10 @@ def open_client():
                       os.environ['PLAID_ENV'])  
 
 
-def format_date(date):
-  d = parse(date)
-  return d.strftime('%Y-%m-%d')
-
-
-def output_filename(account_path, fromto, file_ext):
-  fmt_start = format_date(fromto['start'])
-  fmt_end = format_date(fromto['end'])
-  account = account_path.split(':')[-1]
-  return '%s--%s-%s.%s' % (fmt_start, fmt_end, account, file_ext)
-
-
-def configure_logging(level):
-    if not level:
-        level = INFO
-    else:
-        level = DEBUG
-    basicConfig(
-        format='[%(asctime)s][%(levelname)s] %(message)s',
-        datefmt='%Y/%m/%d %H:%M:%S',
-        level=level)
-
-
 def main():
   version = require("plaid2qif")[0].version
   args = docopt(__doc__, version=version)
-  configure_logging(args['--verbose'])
+  util.configure_logging(args['--verbose'])
   debug(args)
 
   if args['save-access-token']:
