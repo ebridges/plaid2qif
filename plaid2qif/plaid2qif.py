@@ -61,7 +61,7 @@ def download(account, fromto, output):
   txn_total = response['total_transactions']
   txn_sofar = txn_batch
 
-  output_to_file = if output['dir'] True else False
+  output_to_file = True if output['dir'] else False
   output_file = '%s/%s' % (output['dir'], output_filename(account_name, fromto, output['format']))
 
   output_handle = output_to_file and open(output_file, 'w') or sys.stdout
