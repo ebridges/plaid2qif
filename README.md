@@ -2,6 +2,14 @@
 
 Provides a mechanism for downloading transactions from various financial institutions (as supported by [Plaid](https://www.plaid.com)), and converts to formats (specifically QIF & CSV) usaable by financial software (especially GNUCash).
 
+### Summary
+
+```
+  plaid2qif save-access-token --institution=<name> --public-token=<token> [--verbose]
+  plaid2qif list-accounts --institution=<name> [--verbose]
+  plaid2qif download --from=<from-date> --to=<to-date> --institution=<name> --account=<name> --account-type=<type> --account-id=<id> 
+```
+
 ### Usage
 
 After cloning this repo, change to the root directory.  Add your own personal credentials for Plaid to `./plaid-credentials.json`.
