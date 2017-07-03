@@ -25,13 +25,13 @@ class TransactionWriter(object):
   def end(self):
     pass
 
+
 class CsvTransactionWriter(TransactionWriter):
   def begin(self, account_info):
     print('Date,Amount,Description', file=self.output)
 
   def write_record(self, transaction):
     print(transaction['date'],transaction['amount'],transaction['name'], file=self.output)
-
 
 
 class QifTransactionWriter(TransactionWriter):
