@@ -1,3 +1,5 @@
+[![CircleCI](https://img.shields.io/circleci/project/github/RedSparr0w/node-csgo-parser.svg?style=flat-square)]()
+
 ### Description
 
 Provides a mechanism for downloading transactions from various financial institutions (as supported by [Plaid](https://www.plaid.com)), and converts to formats (specifically QIF & CSV) usaable by financial software (especially GNUCash).
@@ -63,3 +65,5 @@ plaid2qif download \
   * `account-id` is Plaid's account ID for the account you want to download, as obtained via `list-accounts` above.
   * By default, output will go to stdout to be redirected.  If you want it to be written to a location use the `output-dir` parameter.
 
+[![GitHub watchers](https://img.shields.io/github/watchers/badges/shields.svg?style=social&label=Watch&style=flat-square)]()
+[![Crates.io](https://img.shields.io/crates/l/rustc-serialize.svg?style=flat-square)]()
