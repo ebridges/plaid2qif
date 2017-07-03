@@ -37,7 +37,7 @@ class CsvTransactionWriter(TransactionWriter):
 class QifTransactionWriter(TransactionWriter):
   def begin(self, account):
     print('!Account', file=self.output)
-    print('N%s' % account['path'], file=self.output)
+    print('N%s' % account['name'], file=self.output)
     print('T%s' % account['type'], file=self.output)
     if 'description' in account:
       print('D%s' % account['description'], file=self.output)
