@@ -85,10 +85,7 @@ class QifTransactionWriter(TransactionWriter):
 
 
   def check_location(self,loc):
-    if ('address' in loc and loc['address'])
-    and ('city' in loc and loc['city'])
-    and ('state' in loc and loc['state'])
-    and ('zip' in loc and loc['zip']):
+    if ('address' in loc and loc['address']) and ('city' in loc and loc['city']) and ('state' in loc and loc['state']) and ('zip' in loc and loc['zip']):
       return True
     else:
       return False
