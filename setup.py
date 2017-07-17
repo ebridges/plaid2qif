@@ -9,7 +9,9 @@ __version__ = None
 with open('plaid2qif/__init__.py') as f:
   for line in f:
     if(line.startswith('VERSION')):
-      __version__ = line.strip().split('=')[1]
+      __version__ = str(line.strip().split('=')[1])
+      __version__ = __version__.replace("'", '') # !!!
+      print ("version is: [%s]" % __version__)
       break
 
 
