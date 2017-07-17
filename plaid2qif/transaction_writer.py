@@ -1,5 +1,6 @@
 from dateutil.parser import parse
 from decimal import Decimal
+from logging import info
 
 TWOPLACES = Decimal(10) ** -2
 
@@ -60,7 +61,7 @@ class QifTransactionWriter(TransactionWriter):
       print('A%s, %s %s' % (transaction['location']['city'], transaction['location']['state'], transaction['location']['zip']), file=self.output)
 
     # ditto for lon/lat
-    if 'location' in transaction and transaction['location']['lon'] and transaction['location']['lat']:
+    if 'location' in transaction and (transaction['location']['lon'] and transaction['location']['lat']):
       print('ALon:%s,Lat:%s' % (transaction['location']['lon'], transaction['location']['lat']), file=self.output)
 
     print('^', file=self.output)
@@ -79,11 +80,15 @@ class QifTransactionWriter(TransactionWriter):
 
   def format_amount(self,a):
     d = Decimal(a).quantize(TWOPLACES)
+    info("formatted amount a [%s] as [%s]" % (a, str(d)))
     return d
 
 
   def check_location(self,loc):
-    if 'address' in loc and 'city' in loc and 'state' in loc and 'zip' in loc:
+    if ('address' in loc and loc['address'])
+    and ('city' in loc and loc['city'])
+    and ('state' in loc and loc['state'])
+    and ('zip' in loc and loc['zip']):
       return True
     else:
       return False
