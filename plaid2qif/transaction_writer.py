@@ -1,6 +1,7 @@
 from dateutil.parser import parse
 from decimal import Decimal
 from logging import info
+from json import dumps
 
 TWOPLACES = Decimal(10) ** -2
 
@@ -14,6 +15,8 @@ class TransactionWriter(object):
       return CsvTransactionWriter(output)
     if t == 'qif':
       return QifTransactionWriter(output)
+    if t == 'raw':
+      return JsonTransactionWriter(output)
 
   instance = staticmethod(instance)
 
@@ -25,6 +28,14 @@ class TransactionWriter(object):
 
   def end(self):
     pass
+
+
+class JsonTransactionWriter(TransactionWriter):
+  def begin(self, account_info):
+    print( dumps(account_info, sort_keys=True), file=self.output)
+
+  def write_record(self, transaction):
+    print( dumps(transaction, sort_keys=True), file=self.output)
 
 
 class CsvTransactionWriter(TransactionWriter):

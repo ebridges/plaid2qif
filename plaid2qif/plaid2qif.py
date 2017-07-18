@@ -20,7 +20,7 @@ Options:
   --account-id=<acct-id>    Plaid's account id for this account.
   --from=<from-date>        Beginning of date range.
   --to=<to-date>            End of date range.
-  --output-format=<format>  Output format either 'csv' or 'qif'. [Default: qif]
+  --output-format=<format>  Output format either 'raw', 'csv' or 'qif'. [Default: qif]
   --output-dir=<path>       Location to output file to. (Default: output to stdout)
   --verbose                 Verbose logging output.
 """
