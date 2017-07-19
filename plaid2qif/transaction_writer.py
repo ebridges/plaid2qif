@@ -90,7 +90,7 @@ class QifTransactionWriter(TransactionWriter):
 
 
   def format_amount(self,a):
-    d = Decimal(a).quantize(TWOPLACES)
+    d = Decimal(a).quantize(TWOPLACES).copy_negate()
     info("formatted amount a [%s] as [%s]" % (a, str(d)))
     return d
 
