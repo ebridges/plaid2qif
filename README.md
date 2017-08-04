@@ -1,4 +1,4 @@
-[![CircleCI](https://img.shields.io/circleci/project/github/RedSparr0w/node-csgo-parser.svg?style=flat-square)]()
+[![CircleCI](https://img.shields.io/circleci/project/github/ebridges/plaid2qif.svg?style=flat-square)](https://circleci.com/gh/ebridges/plaid2qif)
 
 ### Description
 
