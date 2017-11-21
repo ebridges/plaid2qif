@@ -27,7 +27,7 @@ $ python setup.py install
 
 ```
 $ python3 -m http.server
-$ open auth.html
+$ open auth.html # edit first to add the public token from plaid-credentials.json
 ```
 
 3. Follow [instructions here](https://plaid.com/docs/quickstart/#creating-items-with-link-and-the-api) to use the UI to link your financial institution to Plaid.
