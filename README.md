@@ -26,7 +26,7 @@ $ python setup.py install
 2. Open a web server on the root directory and open `auth.html`
 
 ```
-$ python -m SimpleHTTPServer 8000
+$ python3 -m http.server
 $ open auth.html
 ```
 
