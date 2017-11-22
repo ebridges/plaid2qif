@@ -61,7 +61,7 @@ plaid2qif download \
 ```
 
   * `account` is the path to an account in the ledger in GnuCash that you ultimately want to import the transactions to.  This is added to the `!Account` header in the QIF file.  e.g.: `Assets: Checking Accounts:Personal Checking Account`.  If the name has spaces be sure to quote this param.
-  * `account-type` is an account identifier type as [documented here](https://github.com/Gnucash/gnucash/blob/master/src/import-export/qif-imp/file-format.txt#L23).
+  * `account-type` is an account identifier type as [documented here](https://github.com/Gnucash/gnucash/blob/cdb764fec525642bbe85dd5a0a49ec967c55f089/gnucash/import-export/qif-imp/file-format.txt#L23).
   * `account-id` is Plaid's account ID for the account you want to download, as obtained via `list-accounts` above.
   * By default, output will go to stdout to be redirected.  If you want it to be written to a location use the `output-dir` parameter.
 
