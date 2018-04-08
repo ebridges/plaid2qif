@@ -43,7 +43,7 @@ class CsvTransactionWriter(TransactionWriter):
     print('Date,Amount,Description', file=self.output)
 
   def write_record(self, transaction):
-    print("{},{},{}".format(transaction['date'], transaction['amount'], transaction['name']), file=self.output)
+    print("{},{},{}".format(transaction['date'], transaction['amount'], transaction['name'].replace(',', '')), file=self.output)
 
 
 class QifTransactionWriter(TransactionWriter):
