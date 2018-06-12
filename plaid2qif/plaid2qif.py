@@ -130,8 +130,8 @@ def open_client(suppress_warnings=True):
   return plaid.Client(credentials['client_id'],
                       credentials['secret'],
                       credentials['public_key'],
-                      suppress_warnings,
-                      PLAID_ENV)
+                      PLAID_ENV,
+                      suppress_warnings)
 
 
 def main():
