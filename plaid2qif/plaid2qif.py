@@ -6,7 +6,7 @@ Download financial transactions from Plaid and convert to QIF files.
 Usage:
   plaid2qif save-access-token --institution=<name> --public-token=<token> [--verbose]
   plaid2qif list-accounts --institution=<name> [--verbose]
-  plaid2qif download --institution=<name> --account=<account-name> --account-type=<type> --account-id=<acct-id> --from=<from-date> --to=<to-date> [--output-format=<format>] [--output-dir=<path>] [--verbose]
+  plaid2qif download --institution=<name> --account=<account-name> --account-type=<type> --account-id=<acct-id> --from=<from-date> --to=<to-date> [--output-format=<format>] [--output-dir=<path>] [--suppress-warnings=<tf>] [--verbose]
   plaid2qif -h | --help
   plaid2qif --version
 
@@ -22,6 +22,7 @@ Options:
   --to=<to-date>            End of date range.
   --output-format=<format>  Output format either 'raw', 'csv' or 'qif'. [Default: qif]
   --output-dir=<path>       Location to output file to. (Default: output to stdout)
+  --suppress-warnings=<tf>  Suppress warnings about running in a development environment. [Default: True]
   --verbose                 Verbose logging output.
 """
 
@@ -38,8 +39,8 @@ CFG_DIR='./cfg'
 
 PLAID_ENV = 'development' ## sandbox', 'development', or 'production'
 
-def download(account, fromto, output):
-  client = open_client()
+def download(account, fromto, output, suppress_warnings):
+  client = open_client(suppress_warnings)
   access_token = read_access_token(account['institution'])
   account_name = account['name']
   account_id = account['id']
@@ -117,7 +118,7 @@ def read_access_token(institution):
     return cfg['access_token']
 
 
-def open_client():
+def open_client(suppress_warnings=True):
   global PLAID_ENV
   debug('opening client for %s' % PLAID_ENV)
   credentials = {}
@@ -129,6 +130,7 @@ def open_client():
   return plaid.Client(credentials['client_id'],
                       credentials['secret'],
                       credentials['public_key'],
+                      suppress_warnings,
                       PLAID_ENV)
 
 
@@ -159,7 +161,8 @@ def main():
       'dir': args['--output-dir'],
       'format': args['--output-format']
     }
-    download(account, fromto, output)
+    suppress_warnings = args['--suppress-warnings']
+    download(account, fromto, output, suppress_warnings)
 
 if __name__ == '__main__':
   main()
