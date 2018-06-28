@@ -16,7 +16,7 @@ with open('plaid2qif/__init__.py') as f:
 
 
 def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+    return open(os.path.join(os.path.dirname(__file__), fname), encoding='utf-8').read()
 
 setup(
     name = "plaid2qif",
@@ -28,6 +28,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     long_description=read('README.md'),
+    long_description_content_type='text/markdown',
     install_requires=REQUIRED,
     entry_points={
        'console_scripts': [
