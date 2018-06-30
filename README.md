@@ -133,4 +133,4 @@ $ plaid2qif list-accounts --institution=<name>
 
 [![GitHub watchers](https://img.shields.io/github/watchers/badges/shields.svg?style=social&label=Watch&style=flat-square)]()
 [![Crates.io](https://img.shields.io/crates/l/rustc-serialize.svg?style=flat-square)]()
-[![PyPi](https://img.shields.io/pypi/v/nine.svg?style=flat-square)]()
+[![PyPi](https://img.shields.io/pypi/v/plaid2qif.svg?style=flat-square)]()
