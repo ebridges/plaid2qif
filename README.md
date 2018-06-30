@@ -2,25 +2,108 @@
 
 ### Description
 
-Provides a mechanism for downloading transactions from various financial institutions (as supported by [Plaid](https://www.plaid.com)), and converts to formats (specifically QIF & CSV) usaable by financial software (especially GNUCash).
+Provides a mechanism for downloading transactions from various financial institutions (as supported by [Plaid](https://www.plaid.com)), and converts to formats (specifically QIF & CSV, but extensible) usable by financial software (especially GNUCash).
 
 ### Summary
 
 ```
-  plaid2qif save-access-token --institution=<name> --public-token=<token> [--verbose]
-  plaid2qif list-accounts --institution=<name> [--verbose]
-  plaid2qif download --from=<from-date> --to=<to-date> --institution=<name> --account=<name> --account-type=<type> --account-id=<id> 
+  # Save a long-lived access token (one-time only)
+  plaid2qif save-access-token --institution=<name> --public-token=<token> --credentials=<file> [--verbose]
+
+  # List out accunts that have been linked to Plaid
+  plaid2qif list-accounts --institution=<name> --credentials=<file> [--verbose]
+
+  # Download transactions in various formats (default QIF) from Plaid
+  plaid2qif download \
+    --institution=<name> \
+    --account=<account-name> \
+    --account-type=<type> \
+    --account-id=<acct-id> \
+    --from=<from-date> \
+    --to=<to-date> \
+    --credentials=<file> \
+    [--output-format=<format>] \
+    [--output-dir=<path>] \
+    [--suppress-warnings=<tf>] \
+    [--verbose]
 ```
 
 ### Usage
 
-After cloning this repo, change to the root directory.  Add your own personal credentials for Plaid to `./plaid-credentials.json`.
-
-1. Install the `plaid2qif` command (preferably using a virtualenv)
+1. Install the `plaid2qif` command using `pip`
 
 ```
-$ mkvirtualenv --python=python3 plaid2qif
-$ python setup.py install
+$ pip install plaid2qif
+```
+
+2. Authenticate and link with your financial institution (first time only) -- see "Authentication Prerequisites" below.
+
+3. Once you've gotten that configured, you're ready to download transactions and save them as QIF files:
+
+```
+plaid2qif download \
+    --from=<yyyy-mm-dd> \
+    --to=<yyyy-mm-dd> \
+    --institution=<name> \
+    --account-type=<type> \
+    --account=<account-name> \
+    --account-id=<plaid-account-id> \
+    --credentials=<file>
+```
+
+  * `account` is the path to an account in the ledger in GnuCash that you ultimately want to import the transactions to.  This is added to the `!Account` header in the QIF file.  e.g.: `Assets: Checking Accounts:Personal Checking Account`.  If the name has spaces be sure to quote this param.
+  * `account-type` is an account identifier type as [documented here](https://github.com/Gnucash/gnucash/blob/cdb764fec525642bbe85dd5a0a49ec967c55f089/gnucash/import-export/qif-imp/file-format.txt#L23).
+  * `account-id` is Plaid's account ID for the account you want to download, as obtained via `list-accounts` above.
+  * By default, output will go to stdout to be redirected.  If you want it to be written to a location use the `output-dir` parameter.
+
+### Authentication Prerequisites
+
+1. Obtain and save your own personal credentials for Plaid to a local file, e.g. `./plaid-credentials.json`.
+2. Authenticate with your Financial Institution.
+
+#### Steps to Authenticate with your Financial Institution
+
+1. Save this HTML locally, e.g. as `auth.html`
+
+```
+<html>
+<body>
+<button id='linkButton'>Open Link - Institution Select</button>
+<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+<script>
+  var linkHandler = Plaid.create({
+    env: 'development',
+    clientName: 'Plaid2QIF',
+    key: '[PUBLIC_KEY]', // Replace with your public_key from plaid-credentials.json
+    product: 'auth',
+    apiVersion: 'v2',
+    onLoad: function() {
+      // The Link module finished loading.
+    },
+    onSuccess: function(public_token, metadata) {
+      // Send the public_token to your app server here.
+      // The metadata object contains info about the institution the
+      // user selected and the account ID, if selectAccount is enabled.
+      console.log('public_token: '+public_token+', metadata: '+JSON.stringify(metadata));
+    },
+    onExit: function(err, metadata) {
+      // The user exited the Link flow.
+      if (err != null) {
+        // The user encountered a Plaid API error prior to exiting.
+      }
+      // metadata contains information about the institution
+      // that the user selected and the most recent API request IDs.
+      // Storing this information can be helpful for support.
+    }
+  });
+
+  // Trigger the standard institution select view
+  document.getElementById('linkButton').onclick = function() {
+    linkHandler.open();
+  };
+</script>
+</body>
+</html>
 ```
 
 2. Open a web server on the root directory and open `auth.html`
@@ -48,22 +131,6 @@ $ plaid2qif save-access-token --institution=<name> --public-token=<token>
 $ plaid2qif list-accounts --institution=<name>
 ```
 
-7. Once you've gotten that info configured, you're ready to download transactions and save them as QIF files:
-
-```
-plaid2qif download \
-    --from=<yyyy-mm-dd> \
-    --to=<yyyy-mm-dd> \
-    --institution=<name> \
-    --account-type=<type> \
-    --account=<account-name> \
-    --account-id=<plaid-account-id>
-```
-
-  * `account` is the path to an account in the ledger in GnuCash that you ultimately want to import the transactions to.  This is added to the `!Account` header in the QIF file.  e.g.: `Assets: Checking Accounts:Personal Checking Account`.  If the name has spaces be sure to quote this param.
-  * `account-type` is an account identifier type as [documented here](https://github.com/Gnucash/gnucash/blob/cdb764fec525642bbe85dd5a0a49ec967c55f089/gnucash/import-export/qif-imp/file-format.txt#L23).
-  * `account-id` is Plaid's account ID for the account you want to download, as obtained via `list-accounts` above.
-  * By default, output will go to stdout to be redirected.  If you want it to be written to a location use the `output-dir` parameter.
-
 [![GitHub watchers](https://img.shields.io/github/watchers/badges/shields.svg?style=social&label=Watch&style=flat-square)]()
 [![Crates.io](https://img.shields.io/crates/l/rustc-serialize.svg?style=flat-square)]()
+[![PyPi](https://img.shields.io/pypi/v/nine.svg?style=flat-square)]()
