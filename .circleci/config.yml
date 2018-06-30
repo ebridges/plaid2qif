@@ -15,6 +15,7 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
+            pip install --upgrade pip
             pip install -r requirements.txt
 
       - save_cache:
@@ -36,6 +37,7 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
+            pip install --upgrade pip
             pip install -r requirements.txt
 
       - save_cache:
@@ -54,9 +56,9 @@ jobs:
           name: create packages
           command: |
             . venv/bin/activate
-            python setup.py install
-            python setup.py sdist
-            python setup.py bdist_wheel
+            python3 setup.py install
+            python3 setup.py sdist
+            python3 setup.py bdist_wheel
 
       - run:
           name: upload to pypi
