@@ -4,15 +4,16 @@ Plaid 2 QIF.
 Download financial transactions from Plaid and convert to QIF files.
 
 Usage:
-  plaid2qif save-access-token --institution=<name> --public-token=<token> [--verbose]
-  plaid2qif list-accounts --institution=<name> [--verbose]
-  plaid2qif download --institution=<name> --account=<account-name> --account-type=<type> --account-id=<acct-id> --from=<from-date> --to=<to-date> [--output-format=<format>] [--output-dir=<path>] [--suppress-warnings=<tf>] [--verbose]
+  plaid2qif save-access-token --institution=<name> --public-token=<token> --credentials=<file> [--verbose]
+  plaid2qif list-accounts --institution=<name> --credentials=<file> [--verbose]
+  plaid2qif download --institution=<name> --account=<account-name> --account-type=<type> --account-id=<acct-id> --from=<from-date> --to=<to-date> --credentials=<file> [--output-format=<format>] [--output-dir=<path>] [--suppress-warnings=<tf>] [--verbose]
   plaid2qif -h | --help
   plaid2qif --version
 
 Options:
   -h --help                 Show this screen.
   --version                 Show version.
+  --credentials=<file>      Path to Plaid credentials file.
   --institution=<name>      Institution to get an access token from.
   --public-token=<token>.   Transient auth token to exchange for an access token.
   --account=<account-name>  Complete account name from accounting system that transactions will be imported to.
@@ -39,8 +40,8 @@ CFG_DIR='./cfg'
 
 PLAID_ENV = 'development' ## sandbox', 'development', or 'production'
 
-def download(account, fromto, output, suppress_warnings):
-  client = open_client(suppress_warnings)
+def download(account, fromto, output, suppress_warnings, plaid_credentials):
+  client = open_client(plaid_credentials, suppress_warnings)
   access_token = read_access_token(account['institution'])
   account_name = account['name']
   account_id = account['id']
@@ -89,8 +90,8 @@ def download(account, fromto, output, suppress_warnings):
   info('completed writing %d transactions' % txn_sofar)
 
 
-def list_accounts(institution):
-  client = open_client()
+def list_accounts(institution, plaid_credentials):
+  client = open_client(plaid_credentials)
   access_token = read_access_token(institution)
   response = client.Accounts.get(access_token)
   accounts = response['accounts']
@@ -99,9 +100,9 @@ def list_accounts(institution):
     print('%s:%s\t%s\t%s\t%s' % (a['type'], a['subtype'], a['name'], a['mask'], a['account_id']))
 
 
-def save_access_token(institution, public_token):
+def save_access_token(institution, public_token, plaid_credentials):
   global CFG_DIR
-  client = open_client()
+  client = open_client(plaid_credentials)
   response = client.Item.public_token.exchange(public_token)
   with open('%s/%s.json' % (CFG_DIR, institution), 'w') as outfile:
     data = {
@@ -118,13 +119,13 @@ def read_access_token(institution):
     return cfg['access_token']
 
 
-def open_client(suppress_warnings=True):
+def open_client(plaid_credentials, suppress_warnings=True):
   global PLAID_ENV
   debug('opening client for %s' % PLAID_ENV)
   credentials = {}
   
-  info('reading credentials from plaid-credentials.json')
-  with open('plaid-credentials.json') as json_data:
+  info('reading credentials from file: %s' % plaid_credentials)
+  with open(plaid_credentials) as json_data:
       credentials = json.load(json_data)
 
   return plaid.Client(credentials['client_id'],
@@ -141,10 +142,10 @@ def main():
   debug(args)
 
   if args['save-access-token']:
-    save_access_token(args['--institution'], args['--public-token'])
+    save_access_token(args['--institution'], args['--public-token'], args['--credentials'])
 
   if args['list-accounts']:
-    list_accounts(args['--institution'])
+    list_accounts(args['--institution'], args['--credentials'])
 
   if args['download']:
     account = {
@@ -162,7 +163,8 @@ def main():
       'format': args['--output-format']
     }
     suppress_warnings = args['--suppress-warnings']
-    download(account, fromto, output, suppress_warnings)
+    plaid_credentials = args['--credentials']
+    download(account, fromto, output, suppress_warnings, plaid_credentials)
 
 if __name__ == '__main__':
   main()
