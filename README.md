@@ -135,8 +135,11 @@ $ plaid2qif list-accounts --institution=<name>
 ### Distribution
 
 ```
+# commit everything & push
+$ git tag -s vX.Y.Z
+$ git push --tags
 $ python3 setup.py sdist bdist_wheel
-$ twine upload
+$ twine upload dist/*
 ```
 
 [![GitHub watchers](https://img.shields.io/github/watchers/badges/shields.svg?style=social&label=Watch&style=flat-square)]()
