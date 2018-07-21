@@ -24,6 +24,7 @@ Provides a mechanism for downloading transactions from various financial institu
     --credentials=<file> \
     [--output-format=<format>] \
     [--output-dir=<path>] \
+    [--ignore-pending] \
     [--suppress-warnings=<tf>] \
     [--verbose]
 ```
