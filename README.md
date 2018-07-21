@@ -132,6 +132,13 @@ $ plaid2qif save-access-token --institution=<name> --public-token=<token>
 $ plaid2qif list-accounts --institution=<name>
 ```
 
+### Distribution
+
+```
+$ python3 setup.py sdist bdist_wheel
+$ twine upload
+```
+
 [![GitHub watchers](https://img.shields.io/github/watchers/badges/shields.svg?style=social&label=Watch&style=flat-square)]()
 [![Crates.io](https://img.shields.io/crates/l/rustc-serialize.svg?style=flat-square)]()
 [![PyPi](https://img.shields.io/pypi/v/plaid2qif.svg?style=flat-square)]()
