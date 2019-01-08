@@ -60,7 +60,8 @@ plaid2qif download \
 ### Authentication Prerequisites
 
 1. Obtain and save your own personal credentials for Plaid to a local file, e.g. `./plaid-credentials.json`.
-2. Authenticate with your Financial Institution.
+2. Create a `./cfg` directory for institution configuration data to be stored in.
+3. Authenticate with your Financial Institution.
 
 #### Steps to Authenticate with your Financial Institution
 
@@ -121,7 +122,7 @@ $ open auth.html # edit first to add the public token from plaid-credentials.jso
 5. Using the `public_token`, generate and save a long-lived `access_token` credential:
 
 ```
-$ plaid2qif save-access-token --institution=<name> --public-token=<token>
+$ plaid2qif save-access-token --institution=<name> --public-token=<token> --credentials=<plaid-credentials-file>
 ```
 
   * `institution` should be a string that can be used as a valid (i.e.: `[a-zA-Z0-9_]`) filename, used to store the `access_token`.
@@ -129,7 +130,7 @@ $ plaid2qif save-access-token --institution=<name> --public-token=<token>
 6. List the accounts connected with this institution in order to get Plaid's `account_id`:
 
 ```
-$ plaid2qif list-accounts --institution=<name>
+$ plaid2qif list-accounts --institution=<name> --credentials=<plaid-credentials-file>
 ```
 
 ### Distribution
