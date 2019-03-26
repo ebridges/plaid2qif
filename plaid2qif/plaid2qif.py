@@ -28,6 +28,7 @@ Options:
   --verbose                 Verbose logging output.
 """
 
+import os
 import sys
 import plaid
 import json
@@ -38,8 +39,6 @@ from plaid2qif import transaction_writer
 from plaid2qif import util
 
 CFG_DIR='./cfg'
-
-PLAID_ENV = 'development' ## sandbox', 'development', or 'production'
 
 def download(account, fromto, output, ignore_pending, suppress_warnings, plaid_credentials):
   client = open_client(plaid_credentials, suppress_warnings)
@@ -124,8 +123,9 @@ def read_access_token(institution):
 
 
 def open_client(plaid_credentials, suppress_warnings=True):
-  global PLAID_ENV
-  debug('opening client for %s' % PLAID_ENV)
+  plaid_env = os.environ.get('PLAID_ENV', 'development') ## sandbox', 'development', or 'production'
+
+  debug('opening client for %s' % plaid_env)
   credentials = {}
   
   info('reading credentials from file: %s' % plaid_credentials)
@@ -135,7 +135,7 @@ def open_client(plaid_credentials, suppress_warnings=True):
   return plaid.Client(credentials['client_id'],
                       credentials['secret'],
                       credentials['public_key'],
-                      PLAID_ENV,
+                      plaid_env,
                       suppress_warnings)
 
 
