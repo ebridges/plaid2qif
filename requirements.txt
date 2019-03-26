@@ -1,5 +1,5 @@
-wheel
-twine
-docopt
-plaid-python
-python-dateutil
+wheel==0.33.1
+twine==1.13.0
+docopt==0.6.2
+plaid-python==2.4.1
+python-dateutil==2.8.0
