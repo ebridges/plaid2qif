@@ -143,6 +143,7 @@ $ plaid2qif list-accounts --institution=<name> --credentials=<plaid-credentials-
 ### Distribution
 
 ```
+# increment version in `plaid2qif/__init__.py`
 # commit everything & push
 $ git tag -s vX.Y.Z
 $ git push --tags
