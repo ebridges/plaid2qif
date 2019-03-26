@@ -59,9 +59,16 @@ plaid2qif download \
 
 ### Authentication Prerequisites
 
-1. Obtain and save your own personal credentials for Plaid to a local file, e.g. `./plaid-credentials.json`.
-2. Create a `./cfg` directory for institution configuration data to be stored in.
-3. Authenticate with your Financial Institution.
+* Obtain and save your own personal credentials for Plaid to a local file, e.g. `./plaid-credentials.json`. This JSON file should contain values for the following keys:
+```
+    {
+      "client_id" : "<censored>",
+      "public_key" : "<censored>",
+      "secret" : "<censored>"
+    }
+```
+* Create a `./cfg` directory for institution configuration data to be stored in.
+* Authenticate with your Financial Institution.
 
 #### Steps to Authenticate with your Financial Institution
 
