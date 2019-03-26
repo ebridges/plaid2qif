@@ -1,4 +1,4 @@
-[![CircleCI](https://img.shields.io/circleci/project/github/ebridges/plaid2qif.svg?style=flat-square)](https://circleci.com/gh/ebridges/plaid2qif)
+[![CircleCI](https://circleci.com/gh/ebridges/plaid2qif/tree/master.svg?style=svg)](https://circleci.com/gh/ebridges/plaid2qif/tree/master)
 
 ### Description
 
