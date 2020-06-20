@@ -84,7 +84,7 @@ plaid2qif download \
     env: 'development',
     clientName: 'Plaid2QIF',
     key: '[PUBLIC_KEY]', // Replace with your public_key from plaid-credentials.json
-    product: 'auth',
+    product: 'transactions',
     apiVersion: 'v2',
     onLoad: function() {
       // The Link module finished loading.
