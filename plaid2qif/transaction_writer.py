@@ -2,6 +2,7 @@ from dateutil.parser import parse
 from decimal import Decimal
 from logging import info
 from json import dumps
+import unicodedata
 
 TWOPLACES = Decimal(10) ** -2
 
@@ -40,10 +41,11 @@ class JsonTransactionWriter(TransactionWriter):
 
 class CsvTransactionWriter(TransactionWriter):
   def begin(self, account_info):
-    print('Date,Amount,Description', file=self.output)
+    print('Date,Amount,Description,Category,CategoryID,TransactionID,TransactionType', file=self.output)
 
   def write_record(self, transaction):
-    print("{},{},{}".format(transaction['date'], transaction['amount'], transaction['name'].replace(',', '')), file=self.output)
+    print("{},{},{},{},{},{},{}".format(transaction['date'], transaction['amount'], unicodedata.normalize('NFKD', transaction['name']).replace(',', ''),
+      '|'.join(transaction['category']), transaction['category_id'], transaction['transaction_id'], transaction['transaction_type']), file=self.output)
 
 
 class QifTransactionWriter(TransactionWriter):
