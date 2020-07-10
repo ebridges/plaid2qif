@@ -44,7 +44,7 @@ class CsvTransactionWriter(TransactionWriter):
     print('Date,Amount,Description,Category,CategoryID,TransactionID,TransactionType', file=self.output)
 
   def write_record(self, transaction):
-    print("{},{},{},{},{},{},{}".format(transaction['date'], transaction['amount'], unicodedata.normalize('NFKD', transaction['name']).replace(',', ''),
+    print("{},{},{},{},{},{},{}".format(transaction['date'], transaction['amount'], unicodedata.normalize('NFKD', '"' + transaction['name']) + '"',
       '"' + '|'.join(transaction['category']) + '"', transaction['category_id'], transaction['transaction_id'], transaction['transaction_type']), file=self.output)
 
 
