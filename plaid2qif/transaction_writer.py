@@ -45,8 +45,7 @@ class CsvTransactionWriter(TransactionWriter):
 
   def write_record(self, transaction):
     print("{},{},{},{},{},{},{}".format(transaction['date'], transaction['amount'], '"' + unicodedata.normalize('NFKD', transaction['name'].replace('"', '\'')) + '"',
-      '"' + '|'.join(transaction['category'].replace('"', '\'')) + '"', transaction['category_id'], transaction['transaction_id'], transaction['transaction_type']), file=self.output)
-
+      '"' + '|'.join([sub.replace('"', '\'') for sub in transaction['category']]) + '"', transaction['category_id'], transaction['transaction_id'], transaction['transaction_type']), file=self.output)
 
 class QifTransactionWriter(TransactionWriter):
   def begin(self, account):
