@@ -46,8 +46,8 @@ def download(account, fromto, output, ignore_pending, suppress_warnings, plaid_c
   account_name = account['name']
   account_id = account['id']
 
-  response = client.Transactions.get(access_token, 
-    fromto['start'], fromto['end'], 
+  response = client.Transactions.get(access_token,
+    fromto['start'], fromto['end'],
     account_ids=[account_id])
 
   txn_batch = len(response['transactions'])
@@ -58,14 +58,14 @@ def download(account, fromto, output, ignore_pending, suppress_warnings, plaid_c
   output_file = '%s/%s' % (output['dir'], util.output_filename(account_name, fromto, output['format']))
 
   output_handle = output_to_file and open(output_file, 'w') or sys.stdout
-  
+
   try:
     w = transaction_writer.TransactionWriter.instance(output['format'], output_handle)
     w.begin(account)
 
     debug("txn cnt: %d, txn total: %d" % (txn_batch, txn_total))
     while  txn_batch > 0 and txn_batch <= txn_total:
-      
+
       for t in response['transactions']:
         if ignore_pending and t['pending']:
           info('skipping pending transaction for [%s: %s]' % (t['date'], t['name']))
@@ -74,8 +74,8 @@ def download(account, fromto, output, ignore_pending, suppress_warnings, plaid_c
         debug('%s' % t)
         w.write_record(t)
 
-      response = client.Transactions.get(access_token, 
-        start_date=fromto['start'], end_date=fromto['end'], 
+      response = client.Transactions.get(access_token,
+        start_date=fromto['start'], end_date=fromto['end'],
         offset=txn_sofar, account_ids=[account_id] )
 
       txn_batch = len(response['transactions'])
@@ -127,16 +127,16 @@ def open_client(plaid_credentials, suppress_warnings=True):
 
   debug('opening client for %s' % plaid_env)
   credentials = {}
-  
+
   info('reading credentials from file: %s' % plaid_credentials)
   with open(plaid_credentials) as json_data:
-      credentials = json.load(json_data)
+    credentials = json.load(json_data)
 
-  return plaid.Client(credentials['client_id'],
-                      credentials['secret'],
-                      credentials['public_key'],
-                      plaid_env,
-                      suppress_warnings)
+  return plaid.Client(
+    client_id=credentials['client_id'],
+    secret=credentials['secret'],
+    environment=plaid_env,
+    suppress_warnings=suppress_warnings)
 
 
 def main():
