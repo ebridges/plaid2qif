@@ -13,6 +13,8 @@ jobs:
       - run:
           name: install python dependencies
           command: |
+            python3 -m venv venv
+            . venv/bin/activate
             pip install --upgrade pip
             pip install poetry
             poetry export --dev --format "requirements.txt" --without-hashes --output requirements.txt
@@ -35,6 +37,8 @@ jobs:
       - run:
           name: install python dependencies
           command: |
+            python3 -m venv venv
+            . venv/bin/activate
             pip install --upgrade pip
             pip install poetry
             poetry export --dev --format "requirements.txt" --without-hashes --output requirements.txt
