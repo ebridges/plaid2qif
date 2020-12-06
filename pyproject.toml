@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "plaid2qif"
-version = "1.3.2"
+version = "1.3.3"
 description = "Download financial transactions from Plaid as QIF files."
 authors = ["Edward Q. Bridges <github@eqbridges.com>"]
 license = "MIT"
