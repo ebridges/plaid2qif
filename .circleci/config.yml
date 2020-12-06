@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:3.7.0b5-stretch
+      - image: circleci/python:3.9.0
     steps:
       - checkout
 
@@ -13,9 +13,9 @@ jobs:
       - run:
           name: install python dependencies
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
             pip install --upgrade pip
+            pip install poetry
+            poetry export --dev --format "requirements.txt" --without-hashes --output requirements.txt
             pip install -r requirements.txt
 
       - save_cache:
@@ -25,7 +25,7 @@ jobs:
 
   deploy:
     docker:
-      - image: circleci/python:3.7.0b5-stretch
+      - image: circleci/python:3.9.0
     steps:
       - checkout
 
@@ -35,9 +35,9 @@ jobs:
       - run:
           name: install python dependencies
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
             pip install --upgrade pip
+            pip install poetry
+            poetry export --dev --format "requirements.txt" --without-hashes --output requirements.txt
             pip install -r requirements.txt
 
       - save_cache:
