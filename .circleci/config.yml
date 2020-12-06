@@ -57,17 +57,10 @@ jobs:
             echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
 
       - run:
-          name: create packages
+          name: create packages & upload to pypi
           command: |
             . venv/bin/activate
-            python3 setup.py install
-            python3 setup.py sdist
-            python3 setup.py bdist_wheel
-
-      - run:
-          name: upload to pypi
-          command: |
-            . venv/bin/activate
+            python3 setup.py sdist bdist_wheel
             twine upload dist/*
 
 workflows:
