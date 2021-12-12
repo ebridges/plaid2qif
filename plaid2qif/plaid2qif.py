@@ -6,7 +6,7 @@ Download financial transactions from Plaid and convert to QIF files.
 Usage:
   plaid2qif save-access-token --institution=<name> --public-token=<token> --credentials=<file> [--verbose]
   plaid2qif list-accounts --institution=<name> --credentials=<file> [--verbose]
-  plaid2qif download --institution=<name> --account=<account-name> --account-type=<type> --account-id=<acct-id> --from=<from-date> --to=<to-date> --credentials=<file> [--output-format=<format>] [--output-dir=<path>] [--ignore-pending] [--suppress-warnings=<tf>] [--verbose]
+  plaid2qif download --institution=<name> --account=<account-name> --account-type=<type> --account-id=<acct-id> --from=<from-date> --to=<to-date> --credentials=<file> [--output-format=<format>] [--output-dir=<path>] [--ignore-pending] [--verbose]
   plaid2qif -h | --help
   plaid2qif --version
 
@@ -24,32 +24,45 @@ Options:
   --output-format=<format>  Output format either 'raw', 'csv' or 'qif'. [Default: qif]
   --output-dir=<path>       Location to output file to. (Default: output to stdout)
   --ignore-pending          Ignore pending transactions.
-  --suppress-warnings=<tf>  Suppress warnings about running in a development environment. [Default: True]
   --verbose                 Verbose logging output.
 """
-
+from datetime import datetime
+from logging import debug, info
+import json
 import os
 import sys
-import plaid
-import json
+
 from docopt import docopt
-from logging import *
 from pkg_resources import require
+from plaid.api import plaid_api
+from plaid.model.accounts_get_request import AccountsGetRequest
+from plaid.model.transactions_get_request import TransactionsGetRequest
+from plaid.model.transactions_get_request_options import TransactionsGetRequestOptions
+import plaid
+
 from plaid2qif import transaction_writer
 from plaid2qif import util
 
 CFG_DIR='./cfg'
 
-def download(account, fromto, output, ignore_pending, suppress_warnings, plaid_credentials):
-  client = open_client(plaid_credentials, suppress_warnings)
+def download(account, fromto, output, ignore_pending, plaid_credentials):
+  client = open_client(plaid_credentials)
   access_token = read_access_token(account['institution'])
   account_name = account['name']
   account_id = account['id']
+  options = TransactionsGetRequestOptions()
+  options.account_ids = [account_id]
 
-  response = client.Transactions.get(access_token,
-    fromto['start'], fromto['end'],
-    account_ids=[account_id])
+  def req(options):
+    request = TransactionsGetRequest(
+      access_token=access_token,
+      start_date=fromto['start'],
+      end_date=fromto['end'],
+      options=options,
+    )
+    return client.transactions_get(request)
 
+  response = req(options)
   txn_batch = len(response['transactions'])
   txn_total = response['total_transactions']
   txn_sofar = txn_batch
@@ -64,8 +77,7 @@ def download(account, fromto, output, ignore_pending, suppress_warnings, plaid_c
     w.begin(account)
 
     debug("txn cnt: %d, txn total: %d" % (txn_batch, txn_total))
-    while  txn_batch > 0 and txn_batch <= txn_total:
-
+    while 0 < txn_batch <= txn_total:
       for t in response['transactions']:
         if ignore_pending and t['pending']:
           info('skipping pending transaction for [%s: %s]' % (t['date'], t['name']))
@@ -74,9 +86,8 @@ def download(account, fromto, output, ignore_pending, suppress_warnings, plaid_c
         debug('%s' % t)
         w.write_record(t)
 
-      response = client.Transactions.get(access_token,
-        start_date=fromto['start'], end_date=fromto['end'],
-        offset=txn_sofar, account_ids=[account_id] )
+      options.offset = txn_sofar
+      response = req(options)
 
       txn_batch = len(response['transactions'])
       txn_total = response['total_transactions']
@@ -95,8 +106,8 @@ def download(account, fromto, output, ignore_pending, suppress_warnings, plaid_c
 
 def list_accounts(institution, plaid_credentials):
   client = open_client(plaid_credentials)
-  access_token = read_access_token(institution)
-  response = client.Accounts.get(access_token)
+  request = AccountsGetRequest(access_token=read_access_token(institution))
+  response = client.accounts_get(request)
   accounts = response['accounts']
 
   for a in accounts:
@@ -122,8 +133,15 @@ def read_access_token(institution):
     return cfg['access_token']
 
 
-def open_client(plaid_credentials, suppress_warnings=True):
-  plaid_env = os.environ.get('PLAID_ENV', 'development') ## sandbox', 'development', or 'production'
+def open_client(plaid_credentials):
+  envs = {
+    'development': plaid.Environment.Development,
+    'sandbox': plaid.Environment.Sandbox,
+    'production': plaid.Environment.Production,
+  }
+  plaid_env = os.environ.get('PLAID_ENV', 'development')
+  if plaid_env not in envs.keys():
+    raise ValueError(f'PLAID_ENV={plaid_env} is not a valid choice among: {envs.keys()}')
 
   debug('opening client for %s' % plaid_env)
   credentials = {}
@@ -132,11 +150,17 @@ def open_client(plaid_credentials, suppress_warnings=True):
   with open(plaid_credentials) as json_data:
     credentials = json.load(json_data)
 
-  return plaid.Client(
-    client_id=credentials['client_id'],
-    secret=credentials['secret'],
-    environment=plaid_env,
-    suppress_warnings=suppress_warnings)
+  configuration = plaid.Configuration(
+    host=envs[plaid_env],
+    api_key={
+      'clientId': credentials['client_id'],
+      'secret': credentials['secret'],
+      'plaidVersion': '2020-09-14'
+    }
+  )
+  api_client = plaid.ApiClient(configuration)
+  client = plaid_api.PlaidApi(api_client)
+  return client
 
 
 def main():
@@ -159,17 +183,16 @@ def main():
       'type': args['--account-type'],
     }
     fromto = {
-      'start': args['--from'],
-      'end': args['--to']
+      'start': datetime.strptime(args['--from'], '%Y-%m-%d').date(),
+      'end': datetime.strptime(args['--to'], '%Y-%m-%d').date(),
     }
     output = {
       'dir': args['--output-dir'],
       'format': args['--output-format']
     }
     ignore_pending = args['--ignore-pending']
-    suppress_warnings = args['--suppress-warnings']
     plaid_credentials = args['--credentials']
-    download(account, fromto, output, ignore_pending, suppress_warnings, plaid_credentials)
+    download(account, fromto, output, ignore_pending, plaid_credentials)
 
 if __name__ == '__main__':
   main()
