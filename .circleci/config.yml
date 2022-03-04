@@ -60,6 +60,7 @@ jobs:
           name: create packages & upload to pypi
           command: |
             . venv/bin/activate
+            pip3 install wheel
             python3 setup.py sdist bdist_wheel
             twine upload dist/*
 
