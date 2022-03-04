@@ -3,13 +3,8 @@ from logging import INFO, DEBUG, basicConfig
 
 
 def output_filename(account_path, fromto, file_ext):
-  def format_date(date):
-    d = parse(date)
-    return d.strftime('%Y-%m-%d')
-  fmt_start = format_date(fromto['start'])
-  fmt_end = format_date(fromto['end'])
   account = account_path.split(':')[-1]
-  return '%s--%s-%s.%s' % (fmt_start, fmt_end, account, file_ext)
+  return '%s--%s-%s.%s' % (fromto['start'], fromto['end'], account, file_ext)
 
 
 def configure_logging(level):
