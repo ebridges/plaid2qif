@@ -15,6 +15,6 @@ git push origin --tags
 
 if [ ! -z "${DEPLOY}" ];
 then
-    python3 setup.py sdist bdist_wheel
+    python3 -m build
     twine upload dist/*
 fi
