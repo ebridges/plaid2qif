@@ -43,6 +43,7 @@ jobs:
             pip install poetry
             poetry export --dev --format "requirements.txt" --without-hashes --output requirements.txt
             pip install -r requirements.txt
+            pip install --upgrade build wheel
 
       - save_cache:
           key: v1-dependency-cache-{{ checksum "requirements.txt" }}
@@ -60,7 +61,6 @@ jobs:
           name: create packages & upload to pypi
           command: |
             . venv/bin/activate
-            pip install --upgrade build wheel
             python3 -m build
             twine upload dist/*
 
