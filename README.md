@@ -1,4 +1,7 @@
 [![CircleCI](https://circleci.com/gh/ebridges/plaid2qif/tree/master.svg?style=svg)](https://circleci.com/gh/ebridges/plaid2qif/tree/master)
+[![GitHub watchers](https://img.shields.io/github/watchers/badges/shields.svg?style=social&label=Watch&style=flat-square)]()
+[![Crates.io](https://img.shields.io/crates/l/rustc-serialize.svg?style=flat-square)]()
+[![PyPi](https://img.shields.io/pypi/v/plaid2qif.svg?style=flat-square)]()
 
 ### Description
 
@@ -149,7 +152,3 @@ $ git push --tags
 $ python3 setup.py sdist bdist_wheel
 $ twine upload dist/*
 ```
-
-[![GitHub watchers](https://img.shields.io/github/watchers/badges/shields.svg?style=social&label=Watch&style=flat-square)]()
-[![Crates.io](https://img.shields.io/crates/l/rustc-serialize.svg?style=flat-square)]()
-[![PyPi](https://img.shields.io/pypi/v/plaid2qif.svg?style=flat-square)]()
