@@ -4,18 +4,15 @@ Plaid 2 QIF.
 Download financial transactions from Plaid and convert to QIF files.
 
 Usage:
-  plaid2qif save-access-token --institution=<name> --public-token=<token> --credentials=<file> [--verbose]
-  plaid2qif list-accounts --institution=<name> --credentials=<file> [--verbose]
-  plaid2qif download --institution=<name> --account=<account-name> --account-type=<type> --account-id=<acct-id> --from=<from-date> --to=<to-date> --credentials=<file> [--output-format=<format>] [--output-dir=<path>] [--ignore-pending] [--verbose]
+  plaid2qif download --account=<account-name> --account-type=<type> --account-id=<acct-id> --from=<from-date> --to=<to-date> [--output-format=<format>] [--output-dir=<path>] [--ignore-pending] [--verbose]
+  plaid2qif list-accounts [--verbose]
+  plaid2qif info
   plaid2qif -h | --help
   plaid2qif --version
 
 Options:
   -h --help                 Show this screen.
   --version                 Show version.
-  --credentials=<file>      Path to Plaid credentials file.
-  --institution=<name>      Institution to get an access token from.
-  --public-token=<token>.   Transient auth token to exchange for an access token.
   --account=<account-name>  Complete account name from accounting system that transactions will be imported to.
   --account-type=<type>     Account type [Default: Bank]
   --account-id=<acct-id>    Plaid's account id for this account.
