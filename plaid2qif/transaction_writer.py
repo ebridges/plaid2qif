@@ -2,6 +2,7 @@ from dateutil.parser import parse
 from decimal import Decimal
 from logging import info
 from json import dumps
+from datetime import datetime, date
 import unicodedata
 
 TWOPLACES = Decimal(10) ** -2
@@ -36,7 +37,10 @@ class JsonTransactionWriter(TransactionWriter):
     print( dumps(account_info, sort_keys=True), file=self.output)
 
   def write_record(self, transaction):
-    print( dumps(transaction, sort_keys=True), file=self.output)
+    def encode_date(obj):
+        if isinstance(obj, (date, datetime)):
+            return obj.isoformat()
+    print( dumps(transaction.to_dict(), sort_keys=True, default=encode_date), file=self.output)
 
 
 class CsvTransactionWriter(TransactionWriter):
@@ -80,8 +84,7 @@ class QifTransactionWriter(TransactionWriter):
 
 
   def format_date(self, date):
-    d = parse(date)
-    return d.strftime('%m/%d/%Y')
+    return date.strftime('%m/%d/%Y')
 
 
   def format_chknum(self, t):
