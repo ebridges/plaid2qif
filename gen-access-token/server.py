@@ -42,7 +42,7 @@ def init_client():
 
 
 client = init_client()
-app = Flask(environ['APPLICATION_NAME'])
+app = Flask('Plaid2QIF Account Linker')
 
 
 @app.route("/api/exchange-public-token", methods=['POST'])
@@ -50,16 +50,16 @@ def exchange_public_token():
     exchange_request = ItemPublicTokenExchangeRequest(public_token=request.json['public_token'])
     exchange_response = client.item_public_token_exchange(exchange_request)
     access_token = exchange_response['access_token']
-    with open(environ['ACCESS_TOKEN_STORAGE'], 'w') as f:
+    with open(environ['ACCESS_TOKEN_FILE'], 'w') as f:
         f.write(access_token)
-    return f"Access token written to: {environ['ACCESS_TOKEN_STORAGE']}"
+    return f"Access token written to: {environ['ACCESS_TOKEN_FILE']}"
 
 
 @app.route("/api/create-link-token", methods=['GET'])
 def create_link_token():
     req = LinkTokenCreateRequest(
             products=[Products("transactions")],
-            client_name=environ['APPLICATION_NAME'],
+            client_name='Plaid2QIF Account Linker',
             country_codes=[CountryCode('US')],
             language='en',
             user=LinkTokenCreateRequestUser(
@@ -74,14 +74,14 @@ def create_link_token():
 @app.route("/", methods=['GET'])
 def create_link():    
     template = 'home.html'
-    if exists(environ['ACCESS_TOKEN_STORAGE']):
+    if exists(environ['ACCESS_TOKEN_FILE']):
         template = 'exists.html'
         
     with open(template, "r") as file:
         data = file.read()
 
     t = Template(data)
-    return t.safe_substitute(access_token_storage=environ['ACCESS_TOKEN_STORAGE'])
+    return t.safe_substitute(access_token_storage=environ['ACCESS_TOKEN_FILE'])
 
 
 @app.route('/icon.svg')
