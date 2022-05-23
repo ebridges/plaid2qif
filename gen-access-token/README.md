@@ -23,6 +23,8 @@ python server.py
 open http://127.0.0.1:8080
 ```
 
+The access token is written to a file as plain text -- one line with nothing but the access token -- to the location configured in your `.env` file.
+
 ## Screenshot
 
 ![Service Screenshot](screenshot.png)
