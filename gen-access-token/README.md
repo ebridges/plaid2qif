@@ -4,17 +4,19 @@
 
 In order to use Plaid2QIF you must grant Plaid2QIF authorization to access your financial institution's account on your behalf with via Plaid.  This is done by using this tool to log into your account and exchange credentials to obtian an "access token".
 
+You should follow these steps for gaining access to each financial institution's accounts that you'd like to use with Plaid2QIF.  Each access token should be stored in a separate file for each institution. (This could be improved -- see #27).
+
 ## Usage
 
 **To Begin**
-* Visit https://dashboard.plaid.com/overview/development and take note of your `client_id` and `secret`.
 * Decide on a location where you want this service to write out the access token.
+* Configure your environment for authentication as documented in the [parent README](../README.md#authentication-configuration)
 
 ```
 cd ./gen-access-token
-cp sample.env .env
+cp sample.env /path/to/your/working/directory/.env
 
-# update with your client_id & secret, and location for the token
+# Configure as described in the [parent README](../README.md#authentication-configuration)
 vi .env
 
 python server.py
