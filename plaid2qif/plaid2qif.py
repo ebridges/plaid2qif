@@ -149,12 +149,29 @@ def open_client():
   client = plaid_api.PlaidApi(api_client)
   return client
 
+def display_info(args):
+  print('Command line arguments:')
+  for arg in sorted(args.keys()):
+    print(f"\t {arg}: {args[arg]}")
+  print('Environment variables:')
+  print(f"\tACCESS_TOKEN_FILE: {os.environ.get('ACCESS_TOKEN_FILE', 'absent')}")
+  print(f"\tPLAID_CLIENT_ID: {os.environ.get('PLAID_CLIENT_ID', 'absent')}")
+  print(f"\tPLAID_SECRET: {os.environ.get('PLAID_SECRET', 'absent')}")
+  print(f"\tPLAID_ENV: {os.environ.get('PLAID_ENV', 'absent')}")
+  print(f"\tAPPLICATION_NAME: {os.environ.get('APPLICATION_NAME', 'absent')}")
+  print(f"\tPLAID_SANDBOX_REDIRECT_URI: {os.environ.get('PLAID_SANDBOX_REDIRECT_URI', 'absent')}")
+  print(f"\tPORT_NUMBER: {os.environ.get('PORT_NUMBER', 'absent')}")
+  
 
 def main():
   version = require("plaid2qif")[0].version
   args = docopt(__doc__, version=version)
   util.configure_logging(args['--verbose'])
   debug(args)
+  
+  if args['info']:
+    display_info(args)
+    return
 
   if args['list-accounts']:
     list_accounts()
