@@ -109,16 +109,6 @@ def list_accounts(institution, plaid_credentials):
     print('%s:%s\t%s\t%s\t%s' % (a['type'], a['subtype'], a['name'], a['mask'], a['account_id']))
 
 
-def save_access_token(institution, public_token, plaid_credentials):
-  global CFG_DIR
-  client = open_client(plaid_credentials)
-  response = client.Item.public_token.exchange(public_token)
-  with open('%s/%s.json' % (CFG_DIR, institution), 'w') as outfile:
-    data = {
-      'access_token' : response['access_token'],
-      'item_id' : response['item_id']
-    }
-    json.dump(data, outfile, sort_keys=True, indent=2, separators=(',', ': '))
 def read_access_token():
   with open(os.environ.get('ACCESS_TOKEN_FILE')) as f:
     return f.readline().rstrip()
@@ -164,9 +154,6 @@ def main():
   args = docopt(__doc__, version=version)
   util.configure_logging(args['--verbose'])
   debug(args)
-
-  if args['save-access-token']:
-    save_access_token(args['--institution'], args['--public-token'], args['--credentials'])
 
   if args['list-accounts']:
     list_accounts(args['--institution'], args['--credentials'])
