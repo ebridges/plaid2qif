@@ -43,15 +43,14 @@ from plaid2qif import transaction_writer
 from plaid2qif import util
 
 
-def download(account, fromto, output, ignore_pending, plaid_credentials):
-  client = open_client(plaid_credentials)
-  access_token = read_access_token(account['institution'])
-  account_name = account['name']
-  account_id = account['id']
-  options = TransactionsGetRequestOptions()
-  options.account_ids = [account_id]
+def download(account, fromto, output, ignore_pending):
 
-  def req(options):
+  options = TransactionsGetRequestOptions()
+  
+  def do_request(options):
+    access_token = read_access_token()
+    options.account_ids = [account['id']]
+    client = open_client()
     request = TransactionsGetRequest(
       access_token=access_token,
       start_date=fromto['start'],
@@ -60,13 +59,13 @@ def download(account, fromto, output, ignore_pending, plaid_credentials):
     )
     return client.transactions_get(request)
 
-  response = req(options)
+  response = do_request(options)
   txn_batch = len(response['transactions'])
   txn_total = response['total_transactions']
   txn_sofar = txn_batch
 
   output_to_file = True if output['dir'] else False
-  output_file = '%s/%s' % (output['dir'], util.output_filename(account_name, fromto, output['format']))
+  output_file = '%s/%s' % (output['dir'], util.output_filename(account['name'], fromto, output['format']))
 
   output_handle = output_to_file and open(output_file, 'w') or sys.stdout
 
@@ -85,7 +84,7 @@ def download(account, fromto, output, ignore_pending, plaid_credentials):
         w.write_record(t)
 
       options.offset = txn_sofar
-      response = req(options)
+      response = do_request(options)
 
       txn_batch = len(response['transactions'])
       txn_total = response['total_transactions']
