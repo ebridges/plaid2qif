@@ -25,8 +25,8 @@ Options:
 """
 from datetime import datetime
 from logging import debug, info
-import os
-import sys
+from os import environ
+from sys import stdout
 from pathlib import Path
 
 from docopt import docopt
@@ -67,7 +67,7 @@ def download(account, fromto, output, ignore_pending):
   output_to_file = True if output['dir'] else False
   output_file = '%s/%s' % (output['dir'], util.output_filename(account['name'], fromto, output['format']))
 
-  output_handle = output_to_file and open(output_file, 'w') or sys.stdout
+  output_handle = output_to_file and open(output_file, 'w') or stdout
 
   try:
     w = transaction_writer.TransactionWriter.instance(output['format'], output_handle)
@@ -95,7 +95,7 @@ def download(account, fromto, output, ignore_pending):
     w.end()
 
   finally:
-    if output_handle is not sys.stdout:
+    if output_handle is not stdout:
       output_handle.close()
 
   info('completed writing %d transactions' % txn_sofar)
@@ -113,7 +113,7 @@ def list_accounts():
 
 
 def read_access_token():
-  with open(os.environ.get('ACCESS_TOKEN_FILE')) as f:
+  with open(environ.get('ACCESS_TOKEN_FILE')) as f:
     return f.readline().rstrip()
 
 
@@ -123,19 +123,19 @@ def open_client():
     'sandbox': plaid.Environment.Sandbox,
     'production': plaid.Environment.Production,
   }
-  plaid_env = os.environ.get('PLAID_ENV', 'development')
+  plaid_env = environ.get('PLAID_ENV', 'development')
   if plaid_env not in envs.keys():
     raise ValueError(f'PLAID_ENV={plaid_env} is not a valid choice among: {envs.keys()}')
 
-  plaid_client_id = os.environ.get('PLAID_CLIENT_ID')
+  plaid_client_id = environ.get('PLAID_CLIENT_ID')
   if not plaid_client_id:
     raise ValueError('PLAID_CLIENT_ID not found in environment.')
   
-  plaid_secret = os.environ.get('PLAID_SECRET')
+  plaid_secret = environ.get('PLAID_SECRET')
   if not plaid_secret:
     raise ValueError('PLAID_SECRET not found in environment.')
   
-  plaid_version = os.environ.get('PLAID_API_VERSION', '2020-09-14')
+  plaid_version = environ.get('PLAID_API_VERSION', '2020-09-14')
   
   debug('opening client for %s' % plaid_env)
 
@@ -156,13 +156,13 @@ def display_info(args):
   for arg in sorted(args.keys()):
     print(f"\t {arg}: {args[arg]}")
   print('Environment variables:')
-  print(f"\tACCESS_TOKEN_FILE: {os.environ.get('ACCESS_TOKEN_FILE', 'absent')}")
-  print(f"\tPLAID_CLIENT_ID: {os.environ.get('PLAID_CLIENT_ID', 'absent')}")
-  print(f"\tPLAID_SECRET: {os.environ.get('PLAID_SECRET', 'absent')}")
-  print(f"\tPLAID_ENV: {os.environ.get('PLAID_ENV', 'absent')}")
-  print(f"\tAPPLICATION_NAME: {os.environ.get('APPLICATION_NAME', 'absent')}")
-  print(f"\tPLAID_SANDBOX_REDIRECT_URI: {os.environ.get('PLAID_SANDBOX_REDIRECT_URI', 'absent')}")
-  print(f"\tPORT_NUMBER: {os.environ.get('PORT_NUMBER', 'absent')}")
+  print(f"\tACCESS_TOKEN_FILE: {environ.get('ACCESS_TOKEN_FILE', 'absent')}")
+  print(f"\tPLAID_CLIENT_ID: {environ.get('PLAID_CLIENT_ID', 'absent')}")
+  print(f"\tPLAID_SECRET: {environ.get('PLAID_SECRET', 'absent')}")
+  print(f"\tPLAID_ENV: {environ.get('PLAID_ENV', 'absent')}")
+  print(f"\tAPPLICATION_NAME: {environ.get('APPLICATION_NAME', 'absent')}")
+  print(f"\tPLAID_SANDBOX_REDIRECT_URI: {environ.get('PLAID_SANDBOX_REDIRECT_URI', 'absent')}")
+  print(f"\tPORT_NUMBER: {environ.get('PORT_NUMBER', 'absent')}")
   
 
 def main():
