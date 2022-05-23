@@ -25,7 +25,6 @@ Options:
 """
 from datetime import datetime
 from logging import debug, info
-import json
 import os
 import sys
 
@@ -40,7 +39,6 @@ import plaid
 from plaid2qif import transaction_writer
 from plaid2qif import util
 
-CFG_DIR='./cfg'
 
 def download(account, fromto, output, ignore_pending, plaid_credentials):
   client = open_client(plaid_credentials)
@@ -121,16 +119,12 @@ def save_access_token(institution, public_token, plaid_credentials):
       'item_id' : response['item_id']
     }
     json.dump(data, outfile, sort_keys=True, indent=2, separators=(',', ': '))
+def read_access_token():
+  with open(os.environ.get('ACCESS_TOKEN_FILE')) as f:
+    return f.readline().rstrip()
 
 
-def read_access_token(institution):
-  global CFG_DIR
-  with open('%s/%s.json' % (CFG_DIR, institution)) as infile:
-    cfg = json.load(infile)
-    return cfg['access_token']
-
-
-def open_client(plaid_credentials):
+def open_client():
   envs = {
     'development': plaid.Environment.Development,
     'sandbox': plaid.Environment.Sandbox,
@@ -140,19 +134,24 @@ def open_client(plaid_credentials):
   if plaid_env not in envs.keys():
     raise ValueError(f'PLAID_ENV={plaid_env} is not a valid choice among: {envs.keys()}')
 
+  plaid_client_id = os.environ.get('PLAID_CLIENT_ID')
+  if not plaid_client_id:
+    raise ValueError('PLAID_CLIENT_ID not found in environment.')
+  
+  plaid_secret = os.environ.get('PLAID_SECRET')
+  if not plaid_secret:
+    raise ValueError('PLAID_SECRET not found in environment.')
+  
+  plaid_version = os.environ.get('PLAID_API_VERSION', '2020-09-14')
+  
   debug('opening client for %s' % plaid_env)
-  credentials = {}
-
-  info('reading credentials from file: %s' % plaid_credentials)
-  with open(plaid_credentials) as json_data:
-    credentials = json.load(json_data)
 
   configuration = plaid.Configuration(
     host=envs[plaid_env],
     api_key={
-      'clientId': credentials['client_id'],
-      'secret': credentials['secret'],
-      'plaidVersion': '2020-09-14'
+      'clientId': plaid_client_id,
+      'secret': plaid_secret,
+      'plaidVersion': plaid_version,
     }
   )
   api_client = plaid.ApiClient(configuration)
