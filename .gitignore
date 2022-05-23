@@ -6,3 +6,4 @@ cfg/
 *.sublime-workspace
 **/__pycache__
 **/.env
+.vscode/
