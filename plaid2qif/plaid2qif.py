@@ -27,9 +27,12 @@ from datetime import datetime
 from logging import debug, info
 import os
 import sys
+from pathlib import Path
 
 from docopt import docopt
 from pkg_resources import require
+from dotenv import load_dotenv
+
 from plaid.api import plaid_api
 from plaid.model.accounts_get_request import AccountsGetRequest
 from plaid.model.transactions_get_request import TransactionsGetRequest
@@ -164,6 +167,7 @@ def display_info(args):
   
 
 def main():
+  load_dotenv(dotenv_path=f'{Path.cwd()}/.env')
   version = require("plaid2qif")[0].version
   args = docopt(__doc__, version=version)
   util.configure_logging(args['--verbose'])
