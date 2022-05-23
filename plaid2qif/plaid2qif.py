@@ -99,12 +99,13 @@ def download(account, fromto, output, ignore_pending, plaid_credentials):
   info('completed writing %d transactions' % txn_sofar)
 
 
-def list_accounts(institution, plaid_credentials):
-  client = open_client(plaid_credentials)
-  request = AccountsGetRequest(access_token=read_access_token(institution))
+def list_accounts():
+  client = open_client()
+  request = AccountsGetRequest(access_token=read_access_token())
   response = client.accounts_get(request)
   accounts = response['accounts']
 
+  print('Account:Subaccount\tAccountName\tAcctNum\tAcctID')
   for a in accounts:
     print('%s:%s\t%s\t%s\t%s' % (a['type'], a['subtype'], a['name'], a['mask'], a['account_id']))
 
@@ -156,11 +157,11 @@ def main():
   debug(args)
 
   if args['list-accounts']:
-    list_accounts(args['--institution'], args['--credentials'])
+    list_accounts()
+    return
 
   if args['download']:
     account = {
-      'institution': args['--institution'],
       'id' : args['--account-id'],
       'name': args['--account'],
       'type': args['--account-type'],
@@ -174,8 +175,8 @@ def main():
       'format': args['--output-format']
     }
     ignore_pending = args['--ignore-pending']
-    plaid_credentials = args['--credentials']
-    download(account, fromto, output, ignore_pending, plaid_credentials)
+    download(account, fromto, output, ignore_pending)
+    return
 
 if __name__ == '__main__':
   main()
