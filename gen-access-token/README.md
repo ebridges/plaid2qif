@@ -2,7 +2,7 @@
 
 # Plaid2QIF Account Linker
 
-In order to use Plaid2QIF you must grant Plaid2QIF authorization to access your financial institution's account on your behalf with via Plaid.  This is done by using this tool to log into your account and exchange credentials to obtian an "access token".
+In order to use Plaid2QIF you must grant Plaid2QIF authorization to access your financial institution's account on your behalf with via Plaid.  This is done by using this tool to log into your account and exchange credentials to obtain an "access token".
 
 You should follow these steps for gaining access to each financial institution's accounts that you'd like to use with Plaid2QIF.  Each access token should be stored in a separate file for each institution. (This could be improved -- see #27).
 
