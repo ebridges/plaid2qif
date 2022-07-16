@@ -88,7 +88,7 @@ def download(account, fromto, output, ignore_pending, limiter=util.Limiter()):
         w.write_record(t)
 
       options.offset = txn_sofar
-      response = do_request(options)
+      response = do_request(options, limiter)
 
       txn_batch = len(response['transactions'])
       txn_total = response['total_transactions']
