@@ -43,11 +43,11 @@ from plaid2qif import transaction_writer
 from plaid2qif import util
 
 
-def download(account, fromto, output, ignore_pending):
+def download(account, fromto, output, ignore_pending, limiter=util.Limiter()):
 
   options = TransactionsGetRequestOptions()
   
-  def do_request(options):
+  def do_request(options, limiter):
     access_token = read_access_token()
     options.account_ids = [account['id']]
     client = open_client()
@@ -57,9 +57,13 @@ def download(account, fromto, output, ignore_pending):
       end_date=fromto['end'],
       options=options,
     )
+
+    if limiter.time_to_pause():
+      limiter.pause()
+
     return client.transactions_get(request)
 
-  response = do_request(options)
+  response = do_request(options, limiter)
   txn_batch = len(response['transactions'])
   txn_total = response['total_transactions']
   txn_sofar = txn_batch
