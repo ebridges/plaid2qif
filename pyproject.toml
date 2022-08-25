@@ -19,12 +19,14 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.9"
 docopt = "^0.6.2"
-plaid-python = "^7.2.0"
+plaid-python = "^9.4.0"
 python-dateutil = "^2.8.1"
+python-dotenv = "^0.20.0"
 
 [tool.poetry.dev-dependencies]
 wheel = "^0.36.1"
 twine = "^3.2.0"
+Flask = "^2.1.2"
 
 [tool.poetry.scripts]
 plaid2qif = 'plaid2qif.plaid2qif:main'

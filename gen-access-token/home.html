@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#712cf9">
+    <title>Plaid2QIF Account Linker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+        
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+        
+        .b-example-divider {
+            height: 3rem;
+            background-color: rgba(0, 0, 0, .1);
+            border: solid rgba(0, 0, 0, .15);
+            border-width: 1px 0;
+            box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+        }
+        
+        .b-example-vr {
+            flex-shrink: 0;
+            width: 1.5rem;
+            height: 100vh;
+        }
+        
+        .bi {
+            vertical-align: -.125em;
+            fill: currentColor;
+        }
+        
+        .nav-scroller {
+            position: relative;
+            z-index: 2;
+            height: 2.75rem;
+            overflow-y: hidden;
+        }
+        
+        .nav-scroller .nav {
+            display: flex;
+            flex-wrap: nowrap;
+            padding-bottom: 1rem;
+            margin-top: -1px;
+            overflow-x: auto;
+            text-align: center;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .icon-list li::before {
+            display: block;
+            flex-shrink: 0;
+            width: 1.5em;
+            height: 1.5em;
+            margin-right: .5rem;
+            content: "";
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23212529' viewBox='0 0 16 16'%3E%3Cpath d='M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z'/%3E%3C/svg%3E") no-repeat center center / 100% auto;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+
+    <script>
+        (async($) => {
+            // Grab a Link token to initialize Link
+            const createLinkToken = async() => {
+                const res = await fetch("/api/create-link-token");
+                const data = await res.json();
+                return data.link_token;
+            };
+
+            // Initialize Link
+            const handler = Plaid.create({
+                token: await createLinkToken(),
+                onSuccess: async(publicToken, metadata) => {
+                    console.log('Received public token: ' + publicToken)
+                    await fetch("/api/exchange-public-token", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            public_token: publicToken
+                        }),
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }).then((response) => {
+                        const headline = document.getElementById("headline");
+                        headline.textContent = "You have successfully linked your account with Plaid2QIF";
+                        const button = document.getElementById("link-account");
+                        button.style.display = "none";
+                        const pre = document.getElementById("response");
+                        pre.style.background = "#F6F6F6";
+                        response.then(function(text) {
+                            pre.textContent = text;
+                        });
+                    });
+                },
+                onExit: (error, metadata) => {
+                    console.log(error, metadata);
+                },
+            });
+
+            // Start Link when button is clicked
+            const linkAccountButton = document.getElementById("link-account");
+            linkAccountButton.addEventListener("click", (event) => {
+                handler.open();
+            });
+        })(jQuery);
+    </script>
+</head>
+
+<body style="font-family: sans-serif; margin-top: 5; margin-left: 10;">
+
+    <div class="col-lg-8 mx-auto p-3 py-md-5">
+        <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
+            <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
+                <img src="/icon.svg" width="70" height="70">
+                <span class="fs-4">Plaid2QIF</span>
+            </a>
+        </header>
+
+        <main>
+            <h1>Link an Account with Plaid2QIF</h1>
+            <p class="fs-5 col-md-8" id="headline">
+                Get started with Plaid2QIF by linking the Bank or Credit Card account that you'd like to download transactions from.<br> Click the button below to launch the Plaid authentication process.<br> Once that's completed your access token will
+                be stored at this following location:<br>
+                <blockquote><tt>${access_token_storage}</tt></blockquote><br>
+            </p>
+
+            <div class="mb-5">
+                <button type="button" id="link-account" class="btn btn-primary btn-lg px-4">
+                    Launch the Plaid authentication process
+                </button>
+            </div>
+            <pre id="response" style="font-size: 14px"></pre>
+
+
+            <div class="row g-5">
+                <div class="col-md-6">
+                    <h2>Plaid2QIF</h2>
+                    <p>Plaid2QIF is a tool for downloading transactions from your financial institution, making it usable by financial software.</p>
+                    <ul class="icon-list ps-0">
+                        <li class="d-flex align-items-start mb-1">
+                            <a href="https://github.com/ebridges/plaid2qif/blob/master/README.md">Documentation</a></li>
+                        <li class="d-flex align-items-start mb-1">
+                            <a href="https://github.com/ebridges/plaid2qif/issues">Project issue tracker.</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-6">
+                    <h2>Plaid</h2>
+                    <p>Plaid's developer-friendly platform makes it easy for people to securely connect their financial accounts to fintech services.</p>
+                    <ul class="icon-list ps-0">
+                        <li class="d-flex align-items-start mb-1">
+                            <a href="https://plaid.com/docs/link/" rel="noopener" target="_blank">Using Plaid's Link product to authenticate.</a></li>
+                        <li class="d-flex align-items-start mb-1">
+                            <a href="https://plaid.com/docs/transactions/" rel="noopener" target="_blank">Plaid's Transaction download product.</a></li>
+                    </ul>
+                </div>
+
+            </div>
+            <hr class="col-3 col-md-2 mb-5">
+        </main>
+
+        <footer>
+
+            <a href="https://github.com/ebridges/plaid2qif">Plaid2QIF</a><br> &copy; 2022 Edward Q. Bridges<br>
+        </footer>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-kjU+l4N0Yf4ZOJErLsIcvOU2qSb74wXpOhqTvwVx3OElZRweTnQ6d31fXEoRD1Jy" crossorigin="anonymous"></script>
+
+</body>
+
+</html>

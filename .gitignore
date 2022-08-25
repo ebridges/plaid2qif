@@ -5,3 +5,5 @@ plaid-credentials.json
 cfg/
 *.sublime-workspace
 **/__pycache__
+**/.env
+.vscode/
