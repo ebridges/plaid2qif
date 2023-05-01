@@ -26,7 +26,7 @@ python-dotenv = "^0.20.0"
 [tool.poetry.dev-dependencies]
 wheel = "^0.36.1"
 twine = "^4.0.1"
-Flask = "^2.1.2"
+Flask = "^2.3.2"
 
 [tool.poetry.scripts]
 plaid2qif = 'plaid2qif.plaid2qif:main'
